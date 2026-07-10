@@ -17,7 +17,6 @@
 </head>
 <body class="min-h-screen pb-12" onload="initPanel()">
 
-    <!-- HEADER: MKPD PANEL -->
     <header class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div>
@@ -28,24 +27,19 @@
         </div>
     </header>
 
-    <!-- NAVIGATION BAR -->
     <div class="bg-[#16171e] border-b border-black py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button onclick="switchTab('tab-personnel')" id="btn-personnel" class="tab-pill active bg-[#059669] whitespace-nowrap cursor-pointer">👥 Personel</button>
             <button onclick="switchTab('tab-surat')" id="btn-surat" class="tab-pill bg-[#d97706] whitespace-nowrap cursor-pointer">✉️ Surat</button>
             <button onclick="switchTab('tab-whitelist')" id="btn-whitelist" class="tab-pill bg-[#4f46e5] whitespace-nowrap cursor-pointer">📝 Whitelist</button>
-            
             <div class="h-5 w-[1px] bg-gray-700 mx-1"></div>
-            
             <a href="admin_divisi.html" class="tab-pill bg-[#3b82f6] opacity-70 hover:opacity-100 whitespace-nowrap">🛡️ Divisi</a>
             <a href="admin_gaji.html" class="tab-pill bg-[#e11d48] opacity-70 hover:opacity-100 whitespace-nowrap">💰 Gaji</a>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-        <!-- TAB PERSONEL -->
         <div id="tab-personnel" class="tab-content space-y-4">
             <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <input type="text" id="search-personel" oninput="renderPersonel()" placeholder="Cari nama..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm">
@@ -57,29 +51,22 @@
             </div>
         </div>
 
-        <!-- TAB SURAT -->
         <div id="tab-surat" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <h2 class="text-xs font-black text-white uppercase">✉️ Kategori Surat</h2>
             </div>
-            <div class="grid grid-cols-1 gap-3" id="surat-container">
-                <div class="text-xs text-gray-500 font-mono p-4">Memuat data...</div>
-            </div>
+            <div class="grid grid-cols-1 gap-3" id="surat-container"></div>
         </div>
 
-        <!-- TAB WHITELIST -->
         <div id="tab-whitelist" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <h2 class="text-xs font-black text-white uppercase">📝 Kategori Whitelist</h2>
             </div>
-            <div class="grid grid-cols-1 gap-3" id="whitelist-container">
-                <div class="text-xs text-gray-500 font-mono p-4">Memuat data...</div>
-            </div>
+            <div class="grid grid-cols-1 gap-3" id="whitelist-container"></div>
         </div>
 
     </main>
 
-    <!-- MODAL MANAGE PERSONEL -->
     <div id="modal-manage" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
         <div class="w-full max-w-sm p-5 bg-[#1a1b23] border-2 border-black rounded-sm space-y-4 shadow-2xl">
             <h3 class="text-xs font-black uppercase text-white">✏️ Kelola Anggota</h3>
@@ -102,7 +89,6 @@
                     <option value="JENDRAL">JENDRAL</option>
                 </select>
             </div>
-            
             <div class="flex flex-col gap-2 pt-2">
                 <div class="flex gap-2">
                     <button onclick="closeModal()" class="w-1/2 py-2 bg-[#0c0d12] border border-black text-gray-400 font-bold text-[10px] uppercase rounded-sm cursor-pointer">Batal</button>
@@ -139,80 +125,34 @@
         }
 
         async function initPanel() {
-    try {
-        const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { 
-            headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}` } 
-        });
-        if(rRes.ok) { 
-            rosterData = await rRes.json(); 
+            try {
+                const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: BASE_HEADERS });
+                if(rRes.ok) rosterData = await rRes.json();
+            } catch(e) { console.error(e); }
+
+            try {
+                const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: BASE_HEADERS });
+                if(sRes.ok) suratData = await sRes.json();
+            } catch(e) { console.error(e); }
+            
+            const statusEl = document.getElementById('loading-status');
+            if (statusEl) statusEl.remove();
+            
+            renderPersonel();
+            renderSurat();
+            renderWhitelist();
         }
-    } catch(e) {
-        console.error(e);
-    }
 
-    try {
-        const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { 
-            headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}` } 
-        });
-        if(sRes.ok) { 
-            suratData = await sRes.json(); 
-        }
-    } catch(e) {
-        console.error(e);
-    }
-    
-    const statusEl = document.getElementById('loading-status');
-    if (statusEl) {
-        statusEl.remove();
-    }
-    
-    renderPersonel();
-    renderSurat();
-    renderWhitelist();
-}
-
-
-    try {
-        const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } });
-        if(sRes.ok) { 
-            suratData = await sRes.json(); 
-        }
-    } catch(e) {
-        console.error("Gagal mengambil data cuti.");
-    }
-    
-    renderPersonel();
-    renderSurat();
-    renderWhitelist();
-}
-
-
-        function renderSurat() {
-    const container = document.getElementById('surat-container');
-    if(!container) return;
-    container.innerHTML = '';
-    
-    if(!Array.isArray(suratData) || suratData.length === 0) {
-        container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada data.</div>`;
-        return;
-    }
-    suratData.forEach(s => {
-        if(!s) return;
-        container.innerHTML += `
-            <div class="mandalika-card p-4 rounded-sm space-y-2">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="px-1.5 py-0.5 text-[9px] font-black bg-amber-600 text-black rounded-sm uppercase">${s.jenis_surat || 'SURAT'}</span>
-                        <h4 class="font-black text-white text-xs uppercase mt-1">${s.nama_ic}</h4>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-1">
-                    <button onclick="prosesSurat('${s.id}', 'DENIED')" class="px-3 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">DENIED</button>
-                    <button onclick="prosesSurat('${s.id}', 'APPROVED')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">ACC</button>
-                </div>
-            </div>`;
-    });
-}
+        function renderPersonel() {
+            const container = document.getElementById('personel-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const searchVal = document.getElementById('search-personel')?.value.toLowerCase() || '';
+            if(!Array.isArray(rosterData) || rosterData.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-red-400 font-mono">Kosong.</div>`;
+                return;
+            }
 
             let list = rosterData
                 .filter(p => p && p.nama_ic && String(p.status_akun).trim().toUpperCase() === 'ACTIVE' && 
@@ -256,16 +196,13 @@
             const pangkatLama = document.getElementById('current-pangkat').value;
 
             if(!namaBaru) return;
-
             let payload = { nama_ic: namaBaru, pangkat: pangkatBaru };
-            if(pangkatBaru !== pangkatLama) {
-                payload.total_jam_duty = 0;
-            }
+            if(pangkatBaru !== pangkatLama) payload.total_jam_duty = 0;
 
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
+                    headers: BASE_HEADERS,
                     body: JSON.stringify(payload)
                 });
                 if(res.ok) { closeModal(); initPanel(); }
@@ -276,10 +213,7 @@
             const id = document.getElementById('edit-id').value;
             if(!confirm(`Hapus?`)) return;
             try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'DELETE',
-                    headers: BASE_HEADERS
-                });
+                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, { method: 'DELETE', headers: BASE_HEADERS });
                 if(res.ok) { closeModal(); initPanel(); }
             } catch (e) {}
         }
@@ -312,30 +246,16 @@
         }
 
         async function prosesSurat(id, status) {
-    if (!id || !status) return;
-    try {
-        const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
-            method: 'PATCH',
-            headers: {
-                'apikey': DB_KEY,
-                'Authorization': `Bearer ${DB_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                status_approval: status.toUpperCase() 
-            })
-        });
-        if (res.ok) { 
-            initPanel(); 
-        } else {
-            alert("Gagal memperbarui status surat.");
+            if (!id || !status) return;
+            try {
+                const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: BASE_HEADERS,
+                    body: JSON.stringify({ status_approval: status.toUpperCase() })
+                });
+                if (res.ok) initPanel();
+            } catch (e) {}
         }
-    } catch (e) {
-        alert("Gagal memproses surat. Cek koneksi database.");
-    }
-}
-
-
 
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
@@ -365,36 +285,22 @@
         }
 
         async function accWhitelist(id) {
-    if (!id) return;
-    try {
-        const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-            method: 'PATCH',
-            headers: {
-                'apikey': DB_KEY,
-                'Authorization': `Bearer ${DB_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                status_akun: 'ACTIVE', 
-                total_jam_duty: 0 
-            })
-        });
-        if (res.ok) { 
-            initPanel(); 
-        } else {
-            alert("Gagal memproses akun. Periksa sinkronisasi.");
+            if (!id) return;
+            try {
+                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: BASE_HEADERS,
+                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
+                });
+                if (res.ok) initPanel();
+            } catch(e) {}
         }
-    } catch(e) {
-        alert("Gagal memproses. Cek koneksi database.");
-    }
-}
-
 
         async function rejectWhitelist(id) {
             if(!confirm(`Hapus?`)) return;
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, { method: 'DELETE', headers: BASE_HEADERS });
-                if(res.ok) { initPanel(); }
+                if(res.ok) initPanel();
             } catch(e) {}
         }
     </script>
