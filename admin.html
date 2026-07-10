@@ -305,13 +305,7 @@
     try {
         const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
             method: 'PATCH',
-            headers: {
-                'apikey': DB_KEY,
-                'Authorization': `Bearer ${DB_KEY}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation',
-                'Content-Profile': 'public'
-            },
+            headers: BASE_HEADERS,
             body: JSON.stringify({ 
                 status_akun: 'ACTIVE', 
                 total_jam_duty: 0 
@@ -326,6 +320,7 @@
         console.error(e);
     }
 }
+
 
 
 
