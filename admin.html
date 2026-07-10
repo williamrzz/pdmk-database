@@ -13,67 +13,75 @@
         .mandalika-btn { background-color: #12131a; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; color: #fff; transition: all 0.1s ease; }
         .mandalika-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000000; }
         .input-box { background-color: #e2e8f0; border: 2px solid #000000; color: #000; }
-        .tab-sub.active { background-color: #fff; color: #000; border: 2px solid #000; font-weight: bold; }
+        .tab-main.active { background-color: #fff; color: #000; border: 2px solid #000; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen pb-12" onload="initAdminPanel()">
 
-    <nav class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
-        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+    <header class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div>
                 <span class="block text-[8px] text-gray-500 font-bold uppercase tracking-wider">MANDALIKA PD</span>
-                <span class="text-xs font-black text-white italic tracking-wide uppercase">PDMK DATABASE</span>
+                <span class="text-xs font-black text-white italic tracking-wide uppercase">PDMK DATABASE SYSTEM</span>
             </div>
-            <div class="flex items-center space-x-3 overflow-x-auto no-scrollbar py-1">
-                <a href="admin.html" class="px-2 py-0.5 text-[9px] bg-white text-black font-black uppercase border border-black rounded-sm">Personnel</a>
-                <a href="divisi.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Divisi</a>
-                <a href="laporan.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Laporan</a>
-                <a href="finance.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Finance</a>
-                <a href="system.html" class="text-[9px] text-purple-400 hover:text-purple-300 font-bold uppercase">System</a>
-            </div>
-            <a href="dashboard.html" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white border border-black rounded-sm shadow-[2px_2px_0px_#000]">
+            <a href="dashboard.html" class="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white border-2 border-black rounded-sm shadow-[2px_2px_0px_#000]">
                 Exit
             </a>
         </div>
-    </nav>
+    </header>
+
+    <div class="bg-[#202124] border-b border-black py-2.5 px-4">
+        <div class="max-w-4xl mx-auto flex items-center space-x-2 overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('tab-anggota')" id="btn-tab-anggota" class="tab-main active px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">👥 Data Anggota</button>
+            <button onclick="switchTab('tab-pendaftaran')" id="btn-tab-pendaftaran" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">🚨 Pendaftaran</button>
+            <button onclick="switchTab('tab-cuti')" id="btn-tab-cuti" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">📝 Pengajuan Cuti</button>
+            <button onclick="switchTab('tab-absensi')" id="btn-tab-absensi" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">📊 Rekap Absensi</button>
+            <a href="laporan.html" class="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wide whitespace-nowrap">Laporan</a>
+            <a href="finance.html" class="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wide whitespace-nowrap">Finance</a>
+            <a href="system.html" class="px-4 py-2 text-xs font-bold text-purple-400 hover:text-purple-300 uppercase tracking-wide whitespace-nowrap">System</a>
+        </div>
+    </div>
 
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-        <div class="flex space-x-1 border-b border-black pb-2">
-            <button onclick="switchSubTab('sub-anggota')" id="btn-sub-anggota" class="tab-sub active px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">👥 Data Anggota</button>
-            <button onclick="switchSubTab('sub-cuti')" id="btn-sub-cuti" class="tab-sub px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">📝 Pengajuan Cuti</button>
-            <button onclick="switchSubTab('sub-absensi')" id="btn-sub-absensi" class="tab-sub px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">📊 Rekap Absensi</button>
-        </div>
-
-        <div id="sub-anggota" class="sub-content space-y-4">
+        <div id="tab-anggota" class="tab-content space-y-4">
             <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <input type="text" id="search-input" oninput="filterRoster()" placeholder="Cari Nama atau Pangkat..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm placeholder-gray-600">
-                <button onclick="downloadExcelData()" class="mandalika-btn px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm cursor-pointer">📥 Export Data Excel</button>
+                <input type="text" id="search-input" oninput="filterRoster()" placeholder="Cari Nama atau Pangkat..." class="w-full sm:w-64 p-2.5 text-xs font-bold input-box rounded-sm placeholder-gray-600">
+                <span class="text-[10px] font-mono text-gray-400 uppercase">Daftar Anggota Aktif Mandalika PD</span>
             </div>
             <div class="grid grid-cols-1 gap-3" id="roster-list-container">
                 </div>
         </div>
 
-        <div id="sub-cuti" class="sub-content hidden space-y-4">
+        <div id="tab-pendaftaran" class="tab-content hidden space-y-4">
+            <div class="mandalika-card p-4 rounded-sm bg-gradient-to-r from-amber-950/20 to-transparent">
+                <span class="text-[10px] font-bold text-amber-500 block uppercase">REGISTRATION CONSOLE</span>
+                <h2 class="text-xs font-black text-white uppercase mt-0.5">Persetujuan Akun Calon Anggota Baru (Pending)</h2>
+            </div>
+            <div class="grid grid-cols-1 gap-3" id="pendaftaran-list-container">
+                </div>
+        </div>
+
+        <div id="tab-cuti" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <span class="text-[10px] font-bold text-gray-400 block uppercase">LEAVE MANAGEMENT</span>
-                <h2 class="text-xs font-black text-white uppercase mt-0.5">Daftar Permohonan Izin Cuti</h2>
+                <h2 class="text-xs font-black text-white uppercase mt-0.5">Daftar Permohonan Izin Cuti Anggota</h2>
             </div>
             <div class="space-y-3" id="cuti-list-container">
                 </div>
         </div>
 
-        <div id="sub-absensi" class="sub-content hidden space-y-4">
+        <div id="tab-absensi" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 flex justify-between items-center rounded-sm">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 block uppercase">OPERATIONAL REKAP</span>
                     <h2 class="text-xs font-black text-white uppercase mt-0.5">Kehadiran Operasional Mingguan</h2>
                 </div>
-                <select id="absensi-mode" onchange="renderAbsensi()" class="p-1.5 bg-[#12131a] border border-black text-xs text-white rounded-sm">
+                <select id="absensi-mode" onchange="renderAbsensi()" class="p-1.5 bg-[#12131a] border border-black text-xs text-white rounded-sm font-bold">
                     <option value="LOG">⏱️ Lihat Jam Kerja</option>
-                    <option value="STATUS">🚨 Lihat Status Singkat</option>
+                    <option value="STATUS">🚨 Lihat Status Ringkat</option>
                 </select>
             </div>
             <div class="bg-[#242424] border-2 border-black rounded-sm overflow-x-auto p-2">
@@ -140,22 +148,19 @@
 
         let fullRoster = [], dutyLogs = [], leaveLogs = [];
 
-        // Proteksi Akses Admin
         const session = localStorage.getItem('session_pdmk');
         const user = session ? JSON.parse(session) : null;
         if (!user || (user.is_admin !== true && user.is_admin !== "true")) {
             window.location.href = 'dashboard.html';
         }
 
-        // Switcher Sub-Tab
-        function switchSubTab(tabId) {
-            document.querySelectorAll('.sub-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-sub').forEach(el => el.classList.remove('active'));
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-main').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).classList.add('active');
         }
 
-        // Fetch Data Awal
         async function initAdminPanel() {
             try {
                 const [rRes, dRes, lRes] = await Promise.all([
@@ -166,48 +171,103 @@
                 fullRoster = await rRes.json();
                 dutyLogs = await dRes.json();
                 leaveLogs = await lRes.json();
-                renderRoster(fullRoster);
+                
+                renderRoster();
+                renderPendaftaran();
                 renderCuti();
                 renderAbsensi();
             } catch (err) { alert("Sinkronisasi database gagal."); }
         }
 
-        // Render List Personel
-        function renderRoster(data) {
+        // RENDER TAB 1: DATA ANGGOTA (KHUSUS STATUS ACTIVE)
+        function renderRoster() {
             const container = document.getElementById('roster-list-container');
             container.innerHTML = '';
-            data.forEach(p => {
-                const isPending = p.status_akun === 'PENDING';
-                let btnAction = isPending
-                    ? `<button onclick="approvePersonnel('${p.id}')" class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-black border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">✓ SETUJUI AKUN</button>`
-                    : `<button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-3 py-1.5 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA</button>`;
-                let statusBadge = isPending 
-                    ? `<span class="text-[8px] bg-amber-500/20 text-amber-500 border border-amber-500/40 px-1 rounded-sm font-bold uppercase ml-2">PENDING</span>`
-                    : `<span class="text-[8px] bg-emerald-500/20 text-emerald-500 border border-emerald-500/40 px-1 rounded-sm font-bold uppercase ml-2">ACTIVE</span>`;
+            
+            const activePersonnel = fullRoster.filter(p => p.status_akun === 'ACTIVE');
+            if(activePersonnel.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada anggota aktif ditemukan.</div>`;
+                return;
+            }
 
+            activePersonnel.forEach(p => {
                 container.innerHTML += `
                     <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                             <div class="flex items-center space-x-2">
                                 <h4 class="font-black text-white text-sm uppercase tracking-wide">${p.nama_ic}</h4>
                                 <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge}</span>
-                                ${statusBadge}
                             </div>
                             <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
                         </div>
-                        <div class="w-full sm:w-auto flex justify-end">${btnAction}</div>
+                        <div class="w-full sm:w-auto flex justify-end">
+                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
+        // LIVE FILTER UNTUK TAB ANGGOTA AKTIF
         function filterRoster() {
             const val = document.getElementById('search-input').value.toLowerCase();
-            const filtered = fullRoster.filter(p => p.nama_ic.toLowerCase().includes(val) || p.pangkat.toLowerCase().includes(val));
-            renderRoster(filtered);
+            const container = document.getElementById('roster-list-container');
+            container.innerHTML = '';
+
+            const filtered = fullRoster.filter(p => p.status_akun === 'ACTIVE' && (p.nama_ic.toLowerCase().includes(val) || p.pangkat.toLowerCase().includes(val)));
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Pencarian tidak ditemukan.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                container.innerHTML += `
+                    <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-black text-white text-sm uppercase tracking-wide">${p.nama_ic}</h4>
+                                <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
+                        </div>
+                        <div class="w-full sm:w-auto flex justify-end">
+                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        // Render Management Cuti
+        // RENDER TAB 2: DAFTAR PENDAFTARAN BARU (KHUSUS STATUS PENDING)
+        function renderPendaftaran() {
+            const container = document.getElementById('pendaftaran-list-container');
+            container.innerHTML = '';
+
+            const pendingPersonnel = fullRoster.filter(p => p.status_akun === 'PENDING');
+            if(pendingPersonnel.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-6 text-center text-xs text-gray-500 font-mono uppercase border-dashed">Aman! Tidak ada pendaftaran anggota baru yang tertunda.</div>`;
+                return;
+            }
+
+            pendingPersonnel.forEach(p => {
+                container.innerHTML += `
+                    <div class="mandalika-card p-4 border-amber-600/50 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-black text-amber-500 text-sm uppercase tracking-wide">${p.nama_ic}</h4>
+                                <span class="text-[9px] font-mono bg-amber-600 text-black px-1 rounded-sm font-bold">#${p.badge}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">Mengajukan Pangkat: ${p.pangkat} — Menunggu Persetujuan Admin</p>
+                        </div>
+                        <div class="w-full sm:w-auto flex justify-end">
+                            <button onclick="approvePersonnel('${p.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">✓ SETUJUI AKUN</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // RENDER TAB 3: DAFTAR CUTI TERTUNDA
         function renderCuti() {
             const container = document.getElementById('cuti-list-container');
             container.innerHTML = '';
@@ -244,7 +304,7 @@
             } catch (e) { alert("Gagal update status cuti."); }
         }
 
-        // Render Tabel Absensi Mingguan
+        // RENDER TAB 4: TABEL ABSENSI
         function renderAbsensi() {
             const tbody = document.getElementById('absensi-table-body');
             const mode = document.getElementById('absensi-mode').value;
@@ -254,65 +314,4 @@
             fullRoster.filter(p => p.status_akun === 'ACTIVE').forEach(p => {
                 let tr = `<tr><td class="py-2.5 px-2 font-bold text-white text-xs">${p.nama_ic}<span class="block text-[8px] font-normal font-mono text-gray-500 uppercase">${p.pangkat}</span></td>`;
                 hariKerja.forEach(tgl => {
-                    const logs = dutyLogs.filter(d => d.nama_ic === p.nama_ic && d.tanggal === tgl);
-                    const isCuti = leaveLogs.some(l => l.nama_ic === p.nama_ic && l.status_approval === 'APPROVED' && tgl >= l.tanggal_mulai && tgl <= l.tanggal_selesai);
-                    let display = "";
-                    if (logs.length > 0) {
-                        let totalJam = 0;
-                        logs.forEach(l => {
-                            if (l.jam_mulai && l.jam_selesai) {
-                                let diff = (new Date(`${tgl}T${l.jam_selesai}`) - new Date(`${tgl}T${l.jam_mulai}`)) / 1000 / 60 / 60;
-                                if (diff > 0) totalJam += diff;
-                            }
-                        });
-                        display = mode === 'LOG' ? `<span class="text-emerald-400 font-bold font-mono">${totalJam.toFixed(1)}h</span>` : `<span class="px-1.5 py-0.5 bg-emerald-600 text-black font-black text-[8px] rounded-sm uppercase">DUTY</span>`;
-                    } else if (isCuti) {
-                        display = `<span class="px-1.5 py-0.5 bg-amber-500 text-black font-bold text-[8px] rounded-sm uppercase">CUTI</span>`;
-                    } else {
-                        display = `<span class="px-1.5 py-0.5 bg-red-700 text-white font-bold text-[8px] rounded-sm uppercase">ALPHA</span>`;
-                    }
-                    tr += `<td class="py-2.5 px-2 text-center">${display}</td>`;
-                });
-                tr += `</tr>`;
-                tbody.innerHTML += tr;
-            });
-        }
-
-        // Modal Form Controller
-        function openModal(id, name, pangkat, jam, poin) {
-            document.getElementById('modal-id').value = id;
-            document.getElementById('modal-nama').value = name;
-            document.getElementById('modal-pangkat').value = pangkat;
-            document.getElementById('modal-jam').value = jam;
-            document.getElementById('modal-prp').value = poin;
-            document.getElementById('manage-modal').classList.remove('hidden');
-        }
-
-        function closeModal() { document.getElementById('manage-modal').classList.add('hidden'); }
-
-        async function saveChanges() {
-            const id = document.getElementById('modal-id').value;
-            const nama = document.getElementById('modal-nama').value.trim();
-            const pangkat = document.getElementById('modal-pangkat').value;
-            const jam = parseFloat(document.getElementById('modal-jam').value) || 0;
-            const prp = parseInt(document.getElementById('modal-prp').value) || 0;
-            if(!nama) return alert("Nama tidak valid");
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nama_ic: nama, pangkat: pangkat, total_jam_duty: jam, poin_prp: prp })
-                });
-                if (res.ok) { closeModal(); initAdminPanel(); }
-            } catch (e) { alert("Gagal memperbarui database."); }
-        }
-
-        async function approvePersonnel(id) {
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0, poin_prp: 0 })
-                });
-                if (res.ok) { initAdminPanel(); }
-            } catch (e) { alert("Gagal verifikasi pendaftaran.
+                    const logs = dut
