@@ -3,89 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDMK DATABASE - HIGH COMMAND CONSOLE</title>
+    <title>MANDALIKA PD - PERSONNEL DATABASE</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { background-color: #0D0D0D; color: #E0E0E0; }
-        .panel-card { background-color: #151515; border: 1px solid #222222; }
-        .text-neon-green { color: #00FF87; }
-        .bg-neon-green { background-color: #00FF87; }
-        .tab-btn.active { background-color: #1A1A1A; border-color: #00FF87; color: #00FF87; }
+        body { background-color: #1a1a1a; color: #d1d5db; font-family: sans-serif; }
+        .mandalika-card { background-color: #242424; border: 2px solid #000000; box-shadow: 4px 4px 0px #000000; }
+        .mandalika-btn { background-color: #12131a; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; color: #fff; transition: all 0.1s ease; }
+        .mandalika-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000000; }
+        .input-box { background-color: #e2e8f0; border: 2px solid #000000; color: #000; }
+        .tab-sub.active { background-color: #fff; color: #000; border: 2px solid #000; font-weight: bold; }
     </style>
 </head>
-<body class="min-h-screen font-sans antialiased pb-12" onload="initAdminPanel()">
+<body class="min-h-screen pb-12" onload="initAdminPanel()">
 
-    <!-- REVISI NAV BAR -->
-<nav class="bg-[#0A0A0A] border-b border-[#222222] sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
-        <span class="text-[10px] font-black text-purple-400 uppercase tracking-widest">IA CONSOLE</span>
-        
-        <!-- Menu Bar Mobile (Horizontal Scroll) -->
-        <div class="flex space-x-3 overflow-x-auto no-scrollbar">
-            <a href="admin.html" class="text-[9px] font-bold text-white uppercase border-b-2 border-purple-500 pb-1">Personnel</a>
-            <a href="divisi.html" class="text-[9px] font-bold text-gray-500 hover:text-white uppercase transition-all">Divisi</a>
-            <a href="laporan.html" class="text-[9px] font-bold text-gray-500 hover:text-white uppercase transition-all">Laporan</a>
-            <a href="finance.html" class="text-[9px] font-bold text-gray-500 hover:text-white uppercase transition-all">Finance</a>
-            <a href="dashboard.html" class="text-[9px] font-bold text-red-400 uppercase transition-all">Exit</a>
+    <nav class="bg-[#111] border-b-2 border-black px-4 py-3 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-center sm:text-left">
+                <span class="block text-[9px] text-gray-500 font-bold uppercase tracking-wider">MANDALIKA PD</span>
+                <span class="text-sm font-black text-white italic tracking-wide">PDMK DATABASE</span>
+            </div>
+            <div class="flex items-center space-x-2 overflow-x-auto max-w-full py-1">
+                <a href="admin.html" class="px-3 py-1 text-[10px] bg-white text-black font-bold uppercase border border-black rounded-sm">Personnel</a>
+                <a href="divisi.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Divisi Area</a>
+                <a href="laporan.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Laporan</a>
+                <a href="finance.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Finance</a>
+                <a href="system.html" class="px-3 py-1 text-[10px] text-purple-400 hover:text-purple-300 font-bold uppercase">System</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-    <div class="max-w-6xl mx-auto px-4 mt-5 space-y-5">
+    <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-        <!-- SUB NAV TAB BAR -->
-        <div class="flex border-b border-[#222222] bg-[#111] p-1 rounded gap-1">
-            <button onclick="switchTab('tab-anggota')" id="btn-tab-anggota" class="tab-btn active w-1/3 py-2 text-[10px] font-bold uppercase tracking-wider rounded border border-transparent text-gray-500 transition-all cursor-pointer">👥 Data Anggota</button>
-            <button onclick="switchTab('tab-cuti')" id="btn-tab-cuti" class="tab-btn w-1/3 py-2 text-[10px] font-bold uppercase tracking-wider rounded border border-transparent text-gray-500 transition-all cursor-pointer">📝 Leave Manage</button>
-            <button onclick="switchTab('tab-absensi')" id="btn-tab-absensi" class="tab-btn w-1/3 py-2 text-[10px] font-bold uppercase tracking-wider rounded border border-transparent text-gray-500 transition-all cursor-pointer">📊 Rekap Absensi</button>
+        <div class="flex space-x-1 border-b border-black pb-2">
+            <button onclick="switchSubTab('sub-anggota')" id="btn-sub-anggota" class="tab-sub active px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">👥 Data Anggota</button>
+            <button onclick="switchSubTab('sub-cuti')" id="btn-sub-cuti" class="tab-sub px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">📝 Pengajuan Cuti</button>
+            <button onclick="switchSubTab('sub-absensi')" id="btn-sub-absensi" class="tab-sub px-4 py-1.5 text-[10px] uppercase tracking-wider rounded-sm cursor-pointer">📊 Rekap Absensi</button>
         </div>
 
-        <!-- ==================== TAB 1: DATA ANGGOTA ==================== -->
-        <div id="tab-anggota" class="tab-content space-y-4">
-            <div class="p-4 panel-card rounded flex flex-wrap justify-between items-center gap-3">
+        <div id="sub-anggota" class="sub-content space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <input type="text" id="search-input" oninput="filterRoster()" placeholder="Cari Nama atau Pangkat..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm placeholder-gray-600">
+                <button onclick="downloadExcelData()" class="mandalika-btn px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm cursor-pointer">📥 Export Data Excel</button>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3" id="roster-list-container">
+                </div>
+        </div>
+
+        <div id="sub-cuti" class="sub-content hidden space-y-4">
+            <div class="mandalika-card p-4 rounded-sm">
+                <span class="text-[10px] font-bold text-gray-400 block uppercase">LEAVE MANAGEMENT</span>
+                <h2 class="text-xs font-black text-white uppercase mt-0.5">Daftar Permohonan Izin Cuti Anggota</h2>
+            </div>
+            <div class="space-y-3" id="cuti-list-container">
+                </div>
+        </div>
+
+        <div id="sub-absensi" class="sub-content hidden space-y-4">
+            <div class="mandalika-card p-4 rounded-sm flex justify-between items-center">
                 <div>
-                    <h2 class="text-xs font-bold uppercase text-white tracking-wide">Roster Personnel Records</h2>
-                    <p class="text-[10px] text-gray-500">Total Jam Kerja, Akumulasi Poin Tindakan PRP (Tilang, Backup, Arrest).</p>
+                    <span class="text-[10px] font-bold text-gray-400 block uppercase">OPERATIONAL MONITORING</span>
+                    <h2 class="text-xs font-black text-white uppercase mt-0.5">Rekapitulasi Kehadiran Mingguan</h2>
                 </div>
-                <button onclick="downloadRosterExcel()" class="px-3 py-1.5 bg-purple-600 text-white font-bold text-[10px] uppercase rounded tracking-wider cursor-pointer">📊 Export Excel</button>
+                <select id="absensi-mode" onchange="renderAbsensi()" class="p-1.5 bg-[#12131a] border border-black text-xs text-white rounded-sm">
+                    <option value="LOG">⏱️ Lihat Total Jam Duty</option>
+                    <option value="STATUS">🚨 Lihat Status Ringkas</option>
+                </select>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="cards-container">
-                <!-- Card list anggota -->
-            </div>
-        </div>
-
-        <!-- ==================== TAB 2: LEAVE MANAGEMENT ==================== -->
-        <div id="tab-cuti" class="tab-content hidden space-y-4">
-            <div class="p-4 panel-card rounded">
-                <h2 class="text-xs font-bold uppercase text-white tracking-wide">Leave Requests Management</h2>
-                <p class="text-[10px] text-gray-500">Daftar pengajuan izin cuti dinas OOC/IC.</p>
-            </div>
-            <div class="space-y-2" id="cuti-container">
-                <!-- List permohonan cuti -->
-            </div>
-        </div>
-
-        <!-- ==================== TAB 3: REKAP ABSENSI MINGGUAN ==================== -->
-        <div id="tab-absensi" class="tab-content hidden space-y-4">
-            <div class="p-4 panel-card rounded flex flex-wrap justify-between items-center gap-3">
-                <div>
-                    <h2 class="text-xs font-bold uppercase text-white tracking-wide">Operational Monitoring Dashboard</h2>
-                    <p class="text-[10px] text-gray-500">Memonitor riwayat kehadiran & rekap status tugas mingguan.</p>
-                </div>
-                <div class="flex gap-1">
-                    <button onclick="renderAbsensi('LOG')" class="px-3 py-1 bg-[#1A1A1A] border border-[#333] text-gray-300 font-bold text-[9px] uppercase rounded">⏱️ Log Jam</button>
-                    <button onclick="renderAbsensi('STATUS')" class="px-3 py-1 bg-[#1A1A1A] border border-[#333] text-gray-300 font-bold text-[9px] uppercase rounded">🚨 Status Ringkas</button>
-                </div>
-            </div>
-
-            <!-- Tabel Monitoring -->
-            <div class="p-4 panel-card rounded overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse min-w-[600px]">
+            <div class="bg-[#242424] border-2 border-black rounded-sm overflow-x-auto p-2">
+                <table class="w-full text-left text-xs min-w-[600px] border-collapse">
                     <thead>
-                        <tr class="border-b border-[#222222] text-gray-500 uppercase text-[9px] tracking-wider">
-                            <th class="py-2 px-2 w-1/4">Personnel</th>
+                        <tr class="border-b-2 border-black text-gray-400 text-[9px] uppercase tracking-wider">
+                            <th class="py-2 px-2">Nama Personel</th>
                             <th class="py-2 px-2 text-center">Senin</th>
                             <th class="py-2 px-2 text-center">Selasa</th>
                             <th class="py-2 px-2 text-center">Rabu</th>
@@ -93,352 +84,257 @@
                             <th class="py-2 px-2 text-center">Jumat</th>
                         </tr>
                     </thead>
-                    <tbody id="absensi-table-body" class="divide-y divide-[#1A1A1A]">
-                        <!-- Render otomatis -->
-                    </tbody>
+                    <tbody id="absensi-table-body" class="divide-y divide-black/40">
+                        </tbody>
                 </table>
             </div>
         </div>
 
-    </div>
+    </main>
 
-    <!-- MODAL EDIT DATA & POIN PRP ANGGOTA -->
-    <div id="edit-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 animate-fade-in">
-        <div class="w-full max-w-sm p-5 panel-card rounded bg-[#111] space-y-4 shadow-2xl">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-purple-400">✏️ Manage Personnel Profile</h3>
-            <input type="hidden" id="edit-id">
+    <div id="manage-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="w-full max-w-sm p-5 bg-[#242424] border-2 border-black rounded-sm space-y-4 shadow-2xl">
+            <h3 class="text-xs font-black uppercase tracking-wider text-white">✏️ KELOLA PROFIL ANGGOTA</h3>
+            <input type="hidden" id="modal-id">
             
             <div>
-                <label class="block text-[9px] uppercase font-bold text-gray-500 mb-1">Nama Character IC</label>
-                <input type="text" id="edit-nama" class="w-full p-2 bg-[#1A1A1A] border border-[#2B2B2B] rounded text-xs text-white font-semibold focus:outline-none focus:border-purple-500">
+                <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Nama Karakter IC</label>
+                <input type="text" id="modal-nama" class="w-full p-2 input-box text-xs font-bold rounded-sm">
             </div>
             
             <div>
-                <label class="block text-[9px] uppercase font-bold text-gray-500 mb-1">Pangkat Jabatan</label>
-                <select id="edit-pangkat" class="w-full p-2 bg-[#1A1A1A] border border-[#2B2B2B] rounded text-xs text-white font-semibold focus:outline-none focus:border-purple-500">
-                    <option value="BHARADA">BHARADA ($100,000)</option>
-                    <option value="BHARATU">BHARATU ($125,000)</option>
-                    <option value="BRIPDA">BRIPDA ($150,000)</option>
-                    <option value="BRIPKA">BRIPKA ($175,000)</option>
-                    <option value="AIPTU">AIPTU ($200,000)</option>
-                    <option value="AKP">AKP ($250,000)</option>
-                    <option value="KOMPOL">KOMPOL ($300,000)</option>
-                    <option value="JENDRAL">JENDRAL ($500,000)</option>
+                <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Pangkat / Jabatan</label>
+                <select id="modal-pangkat" class="w-full p-2 bg-[#12131a] border border-black text-xs text-white rounded-sm font-bold">
+                    <option value="BHARADA">BHARADA</option>
+                    <option value="BHARATU">BHARATU</option>
+                    <option value="BRIPDA">BRIPDA</option>
+                    <option value="BRIPKA">BRIPKA</option>
+                    <option value="AIPTU">AIPTU</option>
+                    <option value="AKP">AKP</option>
+                    <option value="KOMPOL">KOMPOL</option>
+                    <option value="JENDRAL">JENDRAL</option>
                 </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[9px] uppercase font-bold text-gray-500 mb-1">Total Jam Duty (Hours)</label>
-                    <input type="number" step="0.1" id="edit-jam-duty" class="w-full p-2 bg-[#1A1A1A] border border-[#2B2B2B] rounded text-xs text-white font-mono">
+                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Total Jam Kerja</label>
+                    <input type="number" step="0.1" id="modal-jam" class="w-full p-2 input-box text-xs font-mono font-bold rounded-sm">
                 </div>
                 <div>
-                    <label class="block text-[9px] uppercase font-bold text-gray-500 mb-1">Poin PRP Aktif</label>
-                    <input type="number" id="edit-poin-prp" class="w-full p-2 bg-[#1A1A1A] border border-[#2B2B2B] rounded text-xs text-white font-mono">
+                    <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Poin Tindakan PRP</label>
+                    <input type="number" id="modal-prp" class="w-full p-2 input-box text-xs font-mono font-bold rounded-sm">
                 </div>
             </div>
 
-            <div class="flex space-x-2 pt-3">
-                <button onclick="closeModal()" class="w-1/2 py-2 border border-[#333] text-gray-400 font-bold uppercase text-[10px] rounded tracking-wider cursor-pointer">Cancel</button>
-                <button onclick="saveEditPersonnel()" class="w-1/2 py-2 bg-purple-600 text-white font-bold uppercase text-[10px] rounded tracking-wider cursor-pointer">Save Changes</button>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeModal()" class="w-1/2 py-2 bg-[#12131a] border border-black text-gray-400 font-bold text-[10px] uppercase rounded-sm cursor-pointer">Batal</button>
+                <button onclick="saveChanges()" class="w-1/2 py-2 bg-emerald-600 text-white font-bold text-[10px] uppercase border border-black rounded-sm cursor-pointer">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT DATA CORE LOGIC -->
     <script>
-        const SUPABASE_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
+        const DB_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
+        const DB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
 
-        let rosterData = [];
+        let fullRoster = [];
         let dutyLogs = [];
         let leaveLogs = [];
 
-        // Proteksi Sesi Login High Command
-        const sessionData = localStorage.getItem('session_pdmk');
-        const activeUser = sessionData ? JSON.parse(sessionData) : null;
-        if (!activeUser || (activeUser.is_admin !== true && activeUser.is_admin !== "true")) {
+        // Proteksi Akses Login Admin
+        const session = localStorage.getItem('session_pdmk');
+        const user = session ? JSON.parse(session) : null;
+        if (!user || (user.is_admin !== true && user.is_admin !== "true")) {
             alert("Akses Terlarang!"); window.location.href = 'dashboard.html';
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        // Navigasi Sub-Tab
+        function switchSubTab(tabId) {
+            document.querySelectorAll('.sub-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-sub').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).classList.add('active');
         }
 
+        // Tarik Data Paralel dari Supabase
         async function initAdminPanel() {
             try {
-                // Tarik Paralel Data dari Supabase
                 const [rRes, dRes, lRes] = await Promise.all([
-                    fetch(`${SUPABASE_URL}/rest/v1/roster_personel?order=status_akun.desc,nama_ic.asc`, { headers: { 'apikey': SUPABASE_KEY } }),
-                    fetch(`${SUPABASE_URL}/rest/v1/laporan_duty`, { headers: { 'apikey': SUPABASE_KEY } }),
-                    fetch(`${SUPABASE_URL}/rest/v1/laporan_cuti`, { headers: { 'apikey': SUPABASE_KEY } })
+                    fetch(`${DB_URL}/rest/v1/roster_personel?order=status_akun.desc,nama_ic.asc`, { headers: { 'apikey': DB_KEY } }),
+                    fetch(`${DB_URL}/rest/v1/laporan_duty`, { headers: { 'apikey': DB_KEY } }),
+                    fetch(`${DB_URL}/rest/v1/laporan_cuti`, { headers: { 'apikey': DB_KEY } })
                 ]);
                 
-                rosterData = await rRes.json();
+                fullRoster = await rRes.json();
                 dutyLogs = await dRes.json();
                 leaveLogs = await lRes.json();
 
-                renderRosterCards();
-                renderLeaveRequests();
-                renderAbsensi('LOG'); // Default Tampilan Absen: Log Jam Kerja
-            } catch (err) { alert("Sinkronisasi database gagal."); }
+                renderRoster(fullRoster);
+                renderCuti();
+                renderAbsensi();
+            } catch (err) { alert("Sinkronisasi basis data gagal."); }
         }
 
-        // TAB 1: RENDER CARD ANGGOTA MINIMALIS (JAM DUTY & PRP)
-        function renderRosterCards() {
-            const container = document.getElementById('cards-container');
+        // TAB ANGGOTA: Render List Anggota
+        function renderRoster(data) {
+            const container = document.getElementById('roster-list-container');
             container.innerHTML = '';
 
-            rosterData.forEach(p => {
+            data.forEach(p => {
                 const isPending = p.status_akun === 'PENDING';
                 
-                let actionBtn = isPending
-                    ? `<button onclick="approveUser('${p.id}')" class="w-full mt-3 py-1.5 bg-neon-green text-black text-[10px] font-black uppercase tracking-wider rounded">✓ Approve Personnel</button>`
-                    : `<button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="w-full mt-3 py-1.5 bg-[#1F1F1F] border border-[#2B2B2B] text-gray-300 text-[10px] font-bold uppercase tracking-wider rounded hover:bg-purple-600/20 hover:border-purple-500 transition-all">⚙️ Manage Personnel</button>`;
+                let btnAction = isPending
+                    ? `<button onclick="approvePersonnel('${p.id}')" class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">✓ Setujui Akun</button>`
+                    : `<button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-3 py-1.5 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm cursor-pointer">Kelola</button>`;
 
                 container.innerHTML += `
-                    <div class="p-4 panel-card rounded flex flex-col justify-between">
+                    <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-white text-xs">${p.nama_ic}</h4>
-                                    <span class="text-[9px] font-mono text-gray-500">BADGE #${p.badge}</span>
-                                </div>
-                                <span class="text-[9px] font-black tracking-wider px-2 py-0.5 rounded bg-purple-950/40 text-purple-400 border border-purple-800/30 uppercase">${p.pangkat}</span>
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-black text-white text-sm uppercase">${p.nama_ic}</h4>
+                                <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge}</span>
                             </div>
-                            
-                            <!-- Stat Indikator Minimalis -->
-                            <div class="grid grid-cols-2 gap-2 mt-3">
-                                <div class="bg-[#111] p-2 border border-[#1A1A1A] rounded text-center">
-                                    <span class="block text-[8px] uppercase font-bold text-gray-500">TOTAL JAM DUTY</span>
-                                    <span class="text-sm font-bold text-neon-green font-mono">${(p.total_jam_duty || 0).toFixed(1)} <span class="text-[9px] text-gray-500">Hrs</span></span>
-                                </div>
-                                <div class="bg-[#111] p-2 border border-[#1A1A1A] rounded text-center">
-                                    <span class="block text-[8px] uppercase font-bold text-gray-500">POIN PRP AKTIF</span>
-                                    <span class="text-sm font-bold text-yellow-400 font-mono">${p.poin_prp || 0} <span class="text-[9px] text-gray-500">Pts</span></span>
-                                </div>
-                            </div>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
                         </div>
-                        ${actionBtn}
+                        <div class="w-full sm:w-auto flex justify-end">${btnAction}</div>
                     </div>
                 `;
             });
         }
 
-        // TAB 2: MANAGEMENT IZIN CUTI
-        function renderLeaveRequests() {
-            const container = document.getElementById('cuti-container');
+        // Fitur Cari Real-time
+        function filterRoster() {
+            const val = document.getElementById('search-input').value.toLowerCase();
+            const filtered = fullRoster.filter(p => p.nama_ic.toLowerCase().includes(val) || p.pangkat.toLowerCase().includes(val));
+            renderRoster(filtered);
+        }
+
+        // TAB CUTI: Manajemen Pengajuan Cuti
+        function renderCuti() {
+            const container = document.getElementById('cuti-list-container');
             container.innerHTML = '';
 
-            const pendingCuti = leaveLogs.filter(l => l.status_approval === 'PENDING');
-            if(pendingCuti.length === 0) {
-                container.innerHTML = `<div class="p-4 text-center text-xs text-gray-500 font-medium">⚡ Bersih! Tidak ada permohonan cuti tertunda.</div>`;
+            const pending = leaveLogs.filter(l => l.status_approval === 'PENDING');
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada permohonan cuti tertunda.</div>`;
                 return;
             }
 
-            pendingCuti.forEach(c => {
+            pending.forEach(c => {
                 container.innerHTML += `
-                    <div class="p-4 panel-card rounded flex flex-col md:flex-row md:items-center justify-between gap-3 bg-yellow-950/5 border-yellow-500/10">
-                        <div class="space-y-1">
-                            <div class="flex items-center space-x-2">
-                                <span class="font-bold text-white text-xs">${c.nama_ic}</span>
-                                <span class="text-[9px] px-1.5 py-0.2 bg-[#222] text-gray-400 rounded font-mono">#${c.badge}</span>
-                            </div>
-                            <p class="text-[10px] text-gray-400 font-medium">" ${c.remarks} "</p>
-                            <span class="block text-[9px] text-yellow-500 font-mono">📅 Periode: ${c.tanggal_mulai} s/d ${c.tanggal_selesai}</span>
+                    <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <span class="font-black text-white text-xs block uppercase">${c.nama_ic} (#${c.badge})</span>
+                            <p class="text-[10px] text-gray-400 italic mt-1">" ${c.remarks} "</p>
+                            <span class="text-[9px] text-amber-500 block font-mono mt-0.5">📅 Rentang: ${c.tanggal_mulai} s/d ${c.tanggal_selesai}</span>
                         </div>
-                        <div class="flex space-x-1">
-                            <button onclick="respondLeave('${c.id}', 'DENIED')" class="px-2.5 py-1.5 bg-red-600/20 text-red-400 border border-red-500/20 text-[9px] font-bold uppercase rounded">Tolak</button>
-                            <button onclick="respondLeave('${c.id}', 'APPROVED')" class="px-3 py-1.5 bg-neon-green text-black text-[9px] font-black uppercase rounded">Terima</button>
+                        <div class="flex space-x-1 w-full sm:w-auto justify-end">
+                            <button onclick="updateStatusCuti('${c.id}', 'DENIED')" class="px-2.5 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm">Tolak</button>
+                            <button onclick="updateStatusCuti('${c.id}', 'APPROVED')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm">Terima</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        async function respondLeave(id, status) {
+        async function updateStatusCuti(id, status) {
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
+                const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status_approval: status })
                 });
-                if(response.ok) { alert(`Status cuti diubah: ${status}`); initAdminPanel(); }
-            } catch (e) { alert("Gagal merespon."); }
+                if (res.ok) { alert(`Cuti Berhasil di-${status}`); initAdminPanel(); }
+            } catch (e) { alert("Gagal memperbarui status cuti."); }
         }
 
-        // TAB 3: MONITORING ABSENSI MINGGUAN (DINAMIS DARI DATA DUTY LOGS & CUTI)
-        function renderAbsensi(mode) {
+        // TAB ABSENSI: Hitung & Susun Tabel otomatis
+        function renderAbsensi() {
             const tbody = document.getElementById('absensi-table-body');
+            const mode = document.getElementById('absensi-mode').value;
             tbody.innerHTML = '';
 
-            // Dummy mapping 5 hari kerja (Senin - Jumat) contoh minggu berjalan
             const hariKerja = ['2026-07-06', '2026-07-07', '2026-07-08', '2026-07-09', '2026-07-10'];
 
-            rosterData.filter(p => p.status_akun === 'ACTIVE').forEach(p => {
-                let rowHtml = `
-                    <tr class="hover:bg-white/[0.01]">
-                        <td class="py-3 px-2">
-                            <span class="block font-bold text-white text-[11px]">${p.nama_ic}</span>
-                            <span class="text-[8px] font-mono text-purple-400 uppercase tracking-tight">${p.pangkat}</span>
-                        </td>
-                `;
-
+            fullRoster.filter(p => p.status_akun === 'ACTIVE').forEach(p => {
+                let tr = `<tr><td class="py-2.5 px-2 font-bold text-white text-xs">${p.nama_ic}<span class="block text-[8px] font-normal font-mono text-gray-500 uppercase">${p.pangkat}</span></td>`;
+                
                 hariKerja.forEach(tgl => {
-                    // Cari jika ada log duty di tanggal tersebut
-                    const logsHariIni = dutyLogs.filter(d => d.nama_ic === p.nama_ic && d.tanggal === tgl);
-                    // Cari jika dia sedang izin cuti di rentang tanggal tersebut
+                    const logs = dutyLogs.filter(d => d.nama_ic === p.nama_ic && d.tanggal === tgl);
                     const isCuti = leaveLogs.some(l => l.nama_ic === p.nama_ic && l.status_approval === 'APPROVED' && tgl >= l.tanggal_mulai && tgl <= l.tanggal_selesai);
 
-                    let cellContent = "";
-
-                    if (logsHariIni.length > 0) {
-                        // Hitung durasi jam total jika ada log
+                    let display = "";
+                    if (logs.length > 0) {
                         let totalJam = 0;
-                        logsHariIni.forEach(l => {
-                            if(l.jam_mulai && l.jam_selesai) {
+                        logs.forEach(l => {
+                            if (l.jam_mulai && l.jam_selesai) {
                                 let diff = (new Date(`${tgl}T${l.jam_selesai}`) - new Date(`${tgl}T${l.jam_mulai}`)) / 1000 / 60 / 60;
                                 if (diff > 0) totalJam += diff;
                             }
                         });
-
-                        cellContent = mode === 'LOG' 
-                            ? `<span class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold font-mono bg-emerald-950 text-neon-green border border-emerald-800">${totalJam.toFixed(1)}h</span>`
-                            : `<span class="inline-block px-2 py-0.5 rounded text-[8px] font-black bg-emerald-500 text-black uppercase">DUTY</span>`;
+                        display = mode === 'LOG' ? `<span class="text-emerald-400 font-bold font-mono">${totalJam.toFixed(1)}h</span>` : `<span class="px-1.5 py-0.5 bg-emerald-600 text-black font-black text-[8px] rounded-sm uppercase">DUTY</span>`;
                     } else if (isCuti) {
-                        cellContent = `<span class="inline-block px-2 py-0.5 rounded text-[8px] font-bold bg-yellow-600/20 text-yellow-400 border border-yellow-500/20 uppercase">CUTI</span>`;
+                        display = `<span class="px-1.5 py-0.5 bg-amber-500 text-black font-bold text-[8px] rounded-sm uppercase">CUTI</span>`;
                     } else {
-                        cellContent = `<span class="inline-block px-2 py-0.5 rounded text-[8px] font-bold bg-red-600/10 text-red-400 border border-red-500/10 uppercase">ALPHA</span>`;
+                        display = `<span class="px-1.5 py-0.5 bg-red-700 text-white font-bold text-[8px] rounded-sm uppercase">ALPHA</span>`;
                     }
-
-                    rowHtml += `<td class="py-3 px-2 text-center">${cellContent}</td>`;
+                    tr += `<td class="py-2.5 px-2 text-center">${display}</td>`;
                 });
-
-                rowHtml += `</tr>`;
-                tbody.innerHTML += rowHtml;
+                tr += `</tr>`;
+                tbody.innerHTML += tr;
             });
         }
 
-        // MANAGEMENT MODAL BOX & POPULASI UPDATE DATA
+        // FUNGSI MODAL DIALOG MENGELOLA PROFIL
         function openModal(id, name, pangkat, jam, poin) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-nama').value = name;
-            document.getElementById('edit-pangkat').value = pangkat;
-            document.getElementById('edit-jam-duty').value                     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                allPersonnel = await response.json();
-                renderTable();
-            } catch (error) { alert("Gagal mengambil data roster."); }
+            document.getElementById('modal-id').value = id;
+            document.getElementById('modal-nama').value = name;
+            document.getElementById('modal-pangkat').value = pangkat;
+            document.getElementById('modal-jam').value = jam;
+            document.getElementById('modal-prp').value = poin;
+            document.getElementById('manage-modal').classList.remove('hidden');
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('roster-table-body');
-            tbody.innerHTML = '';
+        function closeModal() { document.getElementById('manage-modal').classList.add('hidden'); }
 
-            allPersonnel.forEach(p => {
-                const isPending = p.status_akun === 'PENDING';
-                const statusBadge = isPending 
-                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30">PENDING</span>`
-                    : `<span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-600/20 text-neon-green border border-emerald-500/30">ACTIVE</span>`;
+        async function saveChanges() {
+            const id = document.getElementById('modal-id').value;
+            const nama = document.getElementById('modal-nama').value.trim();
+            const pangkat = document.getElementById('modal-pangkat').value;
+            const jam = parseFloat(document.getElementById('modal-jam').value) || 0;
+            const prp = parseInt(document.getElementById('modal-prp').value) || 0;
 
-                const actionButtons = isPending
-                    ? `<button onclick="approveUser('${p.id}')" class="px-2 py-1 bg-neon-green text-black font-bold text-[9px] uppercase rounded">✓ Approve</button>`
-                    : `<button onclick="openModal('${p.id}', '${p.nama_ic}', '${p.pangkat}')" class="px-2 py-1 bg-blue-600 text-white font-bold text-[9px] uppercase rounded">✏️ Manage</button>`;
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-white/[0.02]">
-                        <td class="py-3 px-3 font-semibold text-white">${p.nama_ic}</td>
-                        <td class="py-3 px-3 font-mono text-gray-400">${p.badge}</td>
-                        <td class="py-3 px-3 font-bold text-purple-400 text-[11px]">${p.pangkat}</td>
-                        <td class="py-3 px-3">${statusBadge}</td>
-                        <td class="py-3 px-3 text-center space-x-1">${actionButtons}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // AKSI 1: APPROVAL ANGGOTA BARU
-        async function approveUser(id) {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status_akun: 'ACTIVE' })
-                });
-                if(response.ok) { alert("Personnel Berhasil Diaktifkan!"); fetchRoster(); }
-            } catch (error) { alert("Gagal approve."); }
-        }
-
-        // AKSI 2: OPEN MODAL MANAGE (UBAH NAMA & PANGKAT)
-        function openModal(id, name, pangkat) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-nama').value = name;
-            document.getElementById('edit-pangkat').value = pangkat;
-            document.getElementById('edit-modal').classList.remove('hidden');
-        }
-
-        function closeModal() { document.getElementById('edit-modal').classList.add('hidden'); }
-
-        // AKSI 3: SIMPAN PERUBAHAN MANAGE ANGGOTA
-        async function saveEditPersonnel() {
-            const id = document.getElementById('edit-id').value;
-            const namaBaru = document.getElementById('edit-nama').value.trim();
-            const pangkatBaru = document.getElementById('edit-pangkat').value;
-
-            // Logika Gaji Otomatis Berdasarkan Pangkat Seleksi
-            const daftarGaji = { BHARADA: 100000, BHARATU: 125000, BRIPDA: 150000, BRIPKA: 175000, AIPTU: 200000, AKP: 250000, KOMPOL: 300000, JENDRAL: 500000 };
-            const gajiBaru = daftarGaji[pangkatBaru] || 100000;
-
-            if(!namaBaru) return alert("Nama tidak boleh kosong!");
+            if(!nama) return alert("Nama tidak boleh kosong!");
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nama_ic: namaBaru,
-                        pangkat: pangkatBaru,
-                        gaji_pokok: gajiBaru
-                    })
+                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nama_ic: nama, pangkat: pangkat, total_jam_duty: jam, poin_prp: prp })
                 });
-
-                if(response.ok) {
-                    alert("Data personnel berhasil diperbarui!");
-                    closeModal();
-                    fetchRoster();
-                }
-            } catch (error) { alert("Gagal menyimpan update data."); }
+                if (res.ok) { alert("Data Personel Diperbarui!"); closeModal(); initAdminPanel(); }
+            } catch (e) { alert("Gagal menyimpan pembaruan."); }
         }
 
-        // AKSI 4: EXCEL DOWNLOADER
-        function downloadExcel() {
-            const dataBersih = allPersonnel.map(p => ({
-                "Nama IC": p.nama_ic,
+        async function approvePersonnel(id) {
+            try {
+                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0, poin_prp: 0 })
+                });
+                if (res.ok) { alert("Akun Anggota Berhasil Diaktifkan!"); initAdminPanel(); }
+            } catch (e) { alert("Gagal aktivasi."); }
+        }
+
+        // DOWNLOAD EXCEL REKAP
+        function downloadExcelData() {
+            const mapped = fullRoster.map(p => ({
+                "Nama Personel": p.nama_ic,
                 "Badge": p.badge,
                 "Pangkat": p.pangkat,
-                "Gaji Pokok ($)": p.gaji_pokok,
+                "Total Jam Duty": p.total_jam_duty || 0,
+                "Poin PRP": p.poin_prp || 0,
                 "Status": p.status_akun
             }));
-            const worksheet = XLSX.utils.json_to_sheet(dataBersih);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Roster Personnel");
-            XLSX.writeFile(workbook, "Roster_PDMK_Database.xlsx");
-        }
-
-        // Run On Load
-        fetchRoster();
-    </script>
-</body>
-              </html>
-  
