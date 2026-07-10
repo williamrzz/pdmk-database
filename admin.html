@@ -251,8 +251,11 @@
         const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
             method: 'PATCH',
             headers: {
-                ...BASE_HEADERS,
-                'Prefer': 'return=representation'
+                'apikey': DB_KEY,
+                'Authorization': `Bearer ${DB_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
+                'Content-Profile': 'public'
             },
             body: JSON.stringify({ 
                 status_approval: status.toUpperCase() 
@@ -267,6 +270,7 @@
         console.error(e);
     }
 }
+
 
 
         function renderWhitelist() {
@@ -302,8 +306,11 @@
         const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
             method: 'PATCH',
             headers: {
-                ...BASE_HEADERS,
-                'Prefer': 'return=representation'
+                'apikey': DB_KEY,
+                'Authorization': `Bearer ${DB_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
+                'Content-Profile': 'public'
             },
             body: JSON.stringify({ 
                 status_akun: 'ACTIVE', 
@@ -319,6 +326,7 @@
         console.error(e);
     }
 }
+
 
 
         async function rejectWhitelist(id) {
