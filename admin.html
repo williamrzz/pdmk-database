@@ -311,15 +311,17 @@
                 total_jam_duty: 0 
             })
         });
-        if (res.ok) {
+        
+        if (res.status === 200 || res.status === 204 || res.ok) {
             initPanel();
         } else {
-            alert("Gagal merespon ke server. Periksa hak akses database.");
+            console.error("Gagal update data:", res.statusText);
         }
     } catch(e) {
         console.error(e);
     }
 }
+
 
 
 
