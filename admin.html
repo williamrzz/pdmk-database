@@ -29,7 +29,7 @@
 
     <div class="bg-[#16171e] border-b border-black py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('tab-personel')" id="btn-personel" class="tab-pill active bg-[#059669] whitespace-nowrap cursor-pointer">👥 Personel</button>
+            <button onclick="switchTab('tab-personnel')" id="btn-personnel" class="tab-pill active bg-[#059669] whitespace-nowrap cursor-pointer">👥 Personel</button>
             <button onclick="switchTab('tab-surat')" id="btn-surat" class="tab-pill bg-[#d97706] whitespace-nowrap cursor-pointer">✉️ Surat</button>
             <button onclick="switchTab('tab-whitelist')" id="btn-whitelist" class="tab-pill bg-[#4f46e5] whitespace-nowrap cursor-pointer">📝 Whitelist</button>
             
@@ -42,7 +42,7 @@
 
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
-        <div id="tab-personel" class="tab-content space-y-4">
+        <div id="tab-personnel" class="tab-content space-y-4">
             <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <input type="text" id="search-personel" oninput="renderPersonel()" placeholder="Cari nama atau pangkat..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm">
                 <span class="text-[10px] font-mono text-gray-400 uppercase">Urutan Jam Duty Tertinggi</span>
@@ -103,7 +103,16 @@
         const DB_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
         const DB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
         
-        const DISCORD_SURAT_WEBHOOK = "https://discord.com/api/webhooks/YOUR_SURAT_WEBHOOK_HERE"; 
+        // Terintegrasi ke Webhook Payroll otomatis dari sistem Jendral
+        const DISCORD_PAYROLL_WEBHOOK = "https://discord.com/api/webhooks/1486137739022700634/m9pjXqS2G9DV8L8DcHgIVG5I1yriyRwYAECguI6Tw3v2S-t5isC9r_5x13zCu-VxT";
+
+        // Variabel global pengaman header Supabase
+        const HTTP_HEADERS = {
+            'apikey': DB_KEY,
+            'Authorization': `Bearer ${DB_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        };
 
         let rosterData = [], suratData = [];
 
@@ -111,7 +120,7 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('hidden');
-            if(tabId === 'tab-personel') document.getElementById('btn-personel').constList?.add('active') || document.getElementById('btn-personel').classList.add('active');
+            if(tabId === 'tab-personnel') document.getElementById('btn-personel').classList.add('active');
             if(tabId === 'tab-surat') document.getElementById('btn-surat').classList.add('active');
             if(tabId === 'tab-whitelist') document.getElementById('btn-whitelist').classList.add('active');
         }
@@ -128,7 +137,7 @@
                 renderPersonel();
                 renderSurat();
                 renderWhitelist();
-            } catch (err) { console.error("Gagal sinkronisasi data."); }
+            } catch (err) { console.error("Gagal sinkronisasi database."); }
         }
 
         function renderPersonel() {
@@ -187,12 +196,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: { 
-                        'apikey': DB_KEY, 
-                        'Authorization': `Bearer ${DB_KEY}`, 
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
+                    headers: HTTP_HEADERS,
                     body: JSON.stringify(payload)
                 });
                 if(res.ok) { closeModal(); initPanel(); }
@@ -207,7 +211,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'DELETE',
-                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}` }
+                    headers: HTTP_HEADERS
                 });
                 if(res.ok) { alert(`${nama} Berhasil Dihapus/Dipecat.`); closeModal(); initPanel(); }
             } catch (e) { alert("Gagal menghapus anggota."); }
@@ -243,12 +247,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: { 
-                        'apikey': DB_KEY, 
-                        'Authorization': `Bearer ${DB_KEY}`, 
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
+                    headers: HTTP_HEADERS,
                     body: JSON.stringify({ status_approval: status })
                 });
                 
@@ -274,10 +273,9 @@
                     timestamp: new Date().toISOString()
                 }]
             };
-            try { await fetch(DISCORD_SURAT_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(embedData) }); } catch(e){}
+            try { await fetch(DISCORD_PAYROLL_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(embedData) }); } catch(e){}
         }
 
-        // ==================== REVISI FIX: LOGIKA WHITELIST ====================
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
             container.innerHTML = '';
@@ -307,19 +305,14 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: { 
-                        'apikey': DB_KEY, 
-                        'Authorization': `Bearer ${DB_KEY}`, 
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation' // Memaksa Supabase merespons sukses balik secara instan
-                    },
+                    headers: HTTP_HEADERS,
                     body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
                 });
                 if(res.ok) { 
                     alert(`Whitelist UCP ${nama} sukses diaktifkan!`); 
                     initPanel(); 
                 } else {
-                    alert("Gagal memproses. Cek koneksi database.");
+                    alert("Gagal memproses akun. Periksa sinkronisasi.");
                 }
             } catch(e) { alert("Sistem error saat memproses whitelist."); }
         }
@@ -329,18 +322,16 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'DELETE',
-                    headers: { 
-                        'apikey': DB_KEY, 
-                        'Authorization': `Bearer ${DB_KEY}`
-                    }
+                    headers: HTTP_HEADERS
                 });
                 if(res.ok) { 
                     alert(`Pendaftaran UCP ${nama} telah ditolak dan dihapus.`); 
                     initPanel(); 
+                } else {
+                    alert("Gagal menghapus data request.");
                 }
             } catch(e) { alert("Gagal menolak whitelist."); }
         }
     </script>
 </body>
-                </html>
-                    
+</html>
