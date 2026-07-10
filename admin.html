@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDMK DATABASE - HIGH COMMAND PANEL</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Library SheetJS untuk Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { background-color: #0D0D0D; color: #E0E0E0; }
+        .panel-card { background-color: #161616; border: 1px solid #262626; }
+        .text-neon-green { color: #00FF87; }
+        .bg-neon-green { background-color: #00FF87; }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased pb-10">
+
+    <!-- NAV BAR -->
+    <nav class="bg-[#111111] border-b border-[#222222] px-4 py-3 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <span class="text-xs font-black tracking-wider text-purple-400 uppercase">⭐ HIGH COMMAND ADMIN PANEL</span>
+            <a href="dashboard.html" class="text-[10px] font-bold px-3 py-1 rounded bg-gray-800 text-gray-300 border border-gray-700 uppercase">Kembali ke Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- FITUR 1: REKAP & EXPORT DATA ROSTER -->
+        <div class="p-4 panel-card rounded-md flex flex-wrap justify-between items-center gap-4 bg-purple-950/10 border-purple-500/20">
+            <div>
+                <h2 class="text-sm font-bold text-white uppercase">Database Roster Active</h2>
+                <p class="text-[10px] text-gray-400">Total personel terdaftar yang statusnya aktif di sistem.</p>
+            </div>
+            <button onclick="downloadExcel()" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs uppercase rounded hover:bg-purple-500 transition-all cursor-pointer">
+                📊 Download Roster Excel
+            </button>
+        </div>
+
+        <!-- FITUR 2: MANAGE & ROSTER MANAGEMENT (UBAH NAMA & PANGKAT) -->
+        <div class="p-5 panel-card rounded-md space-y-4">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">👥 Kelola Anggota & Approval</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-[#222222] text-gray-400 uppercase text-[10px]">
+                            <th class="py-2 px-3">Nama IC</th>
+                            <th class="py-2 px-3">Badge</th>
+                            <th class="py-2 px-3">Pangkat</th>
+                            <th class="py-2 px-3">Status</th>
+                            <th class="py-2 px-3 text-center">Aksi Kelola</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roster-table-body" class="divide-y divide-[#222222]">
+                        <!-- Data otomatis di-load lewat JavaScript Supabase -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL EDIT ANGGOTA (POP UP) -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="w-full max-w-sm p-5 panel-card rounded-md space-y-4 bg-[#111111]">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">✏️ Edit Data Personnel</h3>
+            <input type="hidden" id="edit-id">
+            <div>
+                <label class="block text-[10px] uppercase text-gray-400 mb-1">Nama IC</label>
+                <input type="text" id="edit-nama" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-xs text-white font-semibold">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase text-gray-400 mb-1">Pangkat / Jabatan</label>
+                <select id="edit-pangkat" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-xs text-white font-semibold">
+                    <option value="BHARADA">BHARADA ($100,000)</option>
+                    <option value="BHARATU">BHARATU ($125,000)</option>
+                    <option value="BRIPDA">BRIPDA ($150,000)</option>
+                    <option value="BRIPKA">BRIPKA ($175,000)</option>
+                    <option value="AIPTU">AIPTU ($200,000)</option>
+                    <option value="AKP">AKP ($250,000)</option>
+                    <option value="KOMPOL">KOMPOL ($300,000)</option>
+                    <option value="JENDRAL">JENDRAL ($500,000)</option>
+                </select>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeModal()" class="w-1/2 py-2 border border-gray-600 text-gray-400 font-bold uppercase text-[10px] rounded">Batal</button>
+                <button onclick="saveEditPersonnel()" class="w-1/2 py-2 bg-purple-600 text-white font-bold uppercase text-[10px] rounded">Simpan Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
+
+        // Proteksi Admin
+        const sessionData = localStorage.getItem('session_pdmk');
+        const user = sessionData ? JSON.parse(sessionData) : null;
+        if (!user || (user.is_admin !== true && user.is_admin !== "true")) {
+            alert("Akses Terlarang! Hanya High Command yang boleh masuk.");
+            window.location.href = 'dashboard.html';
+        }
+
+        let allPersonnel = [];
+
+        // LOAD SEMUA ANGGOTA
+        async function fetchRoster() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/roster_personel?order=status_akun.desc,nama_ic.asc`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                allPersonnel = await response.json();
+                renderTable();
+            } catch (error) { alert("Gagal mengambil data roster."); }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('roster-table-body');
+            tbody.innerHTML = '';
+
+            allPersonnel.forEach(p => {
+                const isPending = p.status_akun === 'PENDING';
+                const statusBadge = isPending 
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] bg-yellow-600/20 text-yellow-400 border border-yellow-500/30">PENDING</span>`
+                    : `<span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-600/20 text-neon-green border border-emerald-500/30">ACTIVE</span>`;
+
+                const actionButtons = isPending
+                    ? `<button onclick="approveUser('${p.id}')" class="px-2 py-1 bg-neon-green text-black font-bold text-[9px] uppercase rounded">✓ Approve</button>`
+                    : `<button onclick="openModal('${p.id}', '${p.nama_ic}', '${p.pangkat}')" class="px-2 py-1 bg-blue-600 text-white font-bold text-[9px] uppercase rounded">✏️ Manage</button>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/[0.02]">
+                        <td class="py-3 px-3 font-semibold text-white">${p.nama_ic}</td>
+                        <td class="py-3 px-3 font-mono text-gray-400">${p.badge}</td>
+                        <td class="py-3 px-3 font-bold text-purple-400 text-[11px]">${p.pangkat}</td>
+                        <td class="py-3 px-3">${statusBadge}</td>
+                        <td class="py-3 px-3 text-center space-x-1">${actionButtons}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // AKSI 1: APPROVAL ANGGOTA BARU
+        async function approveUser(id) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status_akun: 'ACTIVE' })
+                });
+                if(response.ok) { alert("Personnel Berhasil Diaktifkan!"); fetchRoster(); }
+            } catch (error) { alert("Gagal approve."); }
+        }
+
+        // AKSI 2: OPEN MODAL MANAGE (UBAH NAMA & PANGKAT)
+        function openModal(id, name, pangkat) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-nama').value = name;
+            document.getElementById('edit-pangkat').value = pangkat;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+        // AKSI 3: SIMPAN PERUBAHAN MANAGE ANGGOTA
+        async function saveEditPersonnel() {
+            const id = document.getElementById('edit-id').value;
+            const namaBaru = document.getElementById('edit-nama').value.trim();
+            const pangkatBaru = document.getElementById('edit-pangkat').value;
+
+            // Logika Gaji Otomatis Berdasarkan Pangkat Seleksi
+            const daftarGaji = { BHARADA: 100000, BHARATU: 125000, BRIPDA: 150000, BRIPKA: 175000, AIPTU: 200000, AKP: 250000, KOMPOL: 300000, JENDRAL: 500000 };
+            const gajiBaru = daftarGaji[pangkatBaru] || 100000;
+
+            if(!namaBaru) return alert("Nama tidak boleh kosong!");
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nama_ic: namaBaru,
+                        pangkat: pangkatBaru,
+                        gaji_pokok: gajiBaru
+                    })
+                });
+
+                if(response.ok) {
+                    alert("Data personnel berhasil diperbarui!");
+                    closeModal();
+                    fetchRoster();
+                }
+            } catch (error) { alert("Gagal menyimpan update data."); }
+        }
+
+        // AKSI 4: EXCEL DOWNLOADER
+        function downloadExcel() {
+            const dataBersih = allPersonnel.map(p => ({
+                "Nama IC": p.nama_ic,
+                "Badge": p.badge,
+                "Pangkat": p.pangkat,
+                "Gaji Pokok ($)": p.gaji_pokok,
+                "Status": p.status_akun
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataBersih);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Roster Personnel");
+            XLSX.writeFile(workbook, "Roster_PDMK_Database.xlsx");
+        }
+
+        // Run On Load
+        fetchRoster();
+    </script>
+</body>
+              </html>
+  
