@@ -139,29 +139,32 @@
         }
 
         async function initPanel() {
-            const statusEl = document.getElementById('loading-status');
-            try {
-                const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: { 'apikey': DB_KEY } });
-                if(rRes.ok) { 
-                    rosterData = await rRes.json(); 
-                } else { 
-                    if(statusEl) statusEl.innerHTML = "❌ Error 401";
-                    return;
-                }
-            } catch(e) { 
-                if(statusEl) statusEl.innerHTML = "❌ Error Jaringan";
-                return;
-            }
-
-            try {
-                const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } });
-                if(sRes.ok) { suratData = await sRes.json(); }
-            } catch(e) {}
-            
-            renderPersonel();
-            renderSurat();
-            renderWhitelist();
+    const statusEl = document.getElementById('loading-status');
+    try {
+        const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: { 'apikey': DB_KEY } });
+        if(rRes.ok) { 
+            rosterData = await rRes.json(); 
+        } else { 
+            if(statusEl) statusEl.innerHTML = "❌ Gagal memuat data personel (Error 401/403).";
         }
+    } catch(e) { 
+        if(statusEl) statusEl.innerHTML = "❌ Koneksi roster terputus.";
+    }
+
+    try {
+        const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } });
+        if(sRes.ok) { 
+            suratData = await sRes.json(); 
+        }
+    } catch(e) {
+        console.error("Gagal mengambil data cuti.");
+    }
+    
+    renderPersonel();
+    renderSurat();
+    renderWhitelist();
+}
+
 
         function renderSurat() {
     const container = document.getElementById('surat-container');
