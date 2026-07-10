@@ -7,19 +7,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
+    <!-- UI SYSTEM STYLE -->
     <style>
-        body { background-color: #1a1a1a; color: #d1d5db; font-family: sans-serif; }
-        .mandalika-card { background-color: #242424; border: 2px solid #000000; box-shadow: 4px 4px 0px #000000; }
-        .mandalika-btn { background-color: #12131a; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; color: #fff; transition: all 0.1s ease; }
+        body { background-color: #12131a; color: #d1d5db; font-family: sans-serif; }
+        .mandalika-card { background-color: #1a1b23; border: 2px solid #000000; box-shadow: 4px 4px 0px #000000; }
+        .mandalika-btn { background-color: #0c0d12; border: 2px solid #000000; box-shadow: 3px 3px 0px #000000; color: #fff; transition: all 0.1s ease; }
         .mandalika-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000000; }
         .input-box { background-color: #e2e8f0; border: 2px solid #000000; color: #000; }
-        .tab-main.active { background-color: #fff; color: #000; border: 2px solid #000; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* PILLED NAVIGATION STYLE */
+        .tab-pill { padding: 6px 14px; text-transform: uppercase; font-size: 11px; font-weight: 800; border-radius: 6px; color: #fff; transition: all 0.2s; opacity: 0.4; border: 1px solid rgba(0,0,0,0.4); }
+        .tab-pill.active { opacity: 1 !important; transform: scale(1.05); box-shadow: 0px 0px 10px rgba(255,255,255,0.1); border: 2px solid #fff; }
     </style>
 </head>
 <body class="min-h-screen pb-12" onload="initAdminPanel()">
 
+    <!-- HEADER LOGO & EXIT -->
     <header class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div>
@@ -32,59 +37,65 @@
         </div>
     </header>
 
-    <div class="bg-[#202124] border-b border-black py-2.5 px-4">
-        <div class="max-w-4xl mx-auto flex items-center space-x-2 overflow-x-auto no-scrollbar">
-            <button onclick="switchTab('tab-anggota')" id="btn-tab-anggota" class="tab-main active px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">👥 Data Anggota</button>
-            <button onclick="switchTab('tab-pendaftaran')" id="btn-tab-pendaftaran" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">🚨 Pendaftaran</button>
-            <button onclick="switchTab('tab-cuti')" id="btn-tab-cuti" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">📝 Pengajuan Cuti</button>
-            <button onclick="switchTab('tab-absensi')" id="btn-tab-absensi" class="tab-main px-4 py-2 text-xs uppercase tracking-wide rounded-sm cursor-pointer whitespace-nowrap">📊 Rekap Absensi</button>
-            <a href="laporan.html" class="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wide whitespace-nowrap">Laporan</a>
-            <a href="finance.html" class="px-4 py-2 text-xs font-bold text-gray-400 hover:text-white uppercase tracking-wide whitespace-nowrap">Finance</a>
-            <a href="system.html" class="px-4 py-2 text-xs font-bold text-purple-400 hover:text-purple-300 uppercase tracking-wide whitespace-nowrap">System</a>
+    <!-- TAB NAVIGATOR STYLE FOTO 2 (KOTAKAN WARNA) -->
+    <div class="bg-[#16171e] border-b border-black py-3 px-4 shadow-inner">
+        <div class="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <button onclick="switchTab('tab-anggota')" id="btn-tab-anggota" class="tab-pill active bg-[#059669] whitespace-nowrap cursor-pointer">👥 Data Anggota</button>
+            <button onclick="switchTab('tab-pendaftaran')" id="btn-tab-pendaftaran" class="tab-pill bg-[#4f46e5] whitespace-nowrap cursor-pointer">🚨 Pendaftaran</button>
+            <button onclick="switchTab('tab-cuti')" id="btn-tab-cuti" class="tab-pill bg-[#e11d48] whitespace-nowrap cursor-pointer">📝 Pengajuan Cuti</button>
+            <button onclick="switchTab('tab-absensi')" id="btn-tab-absensi" class="tab-pill bg-[#d97706] whitespace-nowrap cursor-pointer">📊 Rekap Absensi</button>
+            
+            <div class="h-5 w-[1px] bg-gray-700 mx-1"></div>
+            
+            <a href="laporan.html" class="tab-pill bg-[#4b5563] opacity-70 hover:opacity-100 whitespace-nowrap">Laporan</a>
+            <a href="finance.html" class="tab-pill bg-[#4b5563] opacity-70 hover:opacity-100 whitespace-nowrap">Finance</a>
+            <a href="system.html" class="tab-pill bg-[#6b21a8] opacity-70 hover:opacity-100 whitespace-nowrap">System</a>
         </div>
     </div>
 
+    <!-- MAIN INTERFACE CONSOLE -->
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
+        <!-- TAB 1: DATA ANGGOTA -->
         <div id="tab-anggota" class="tab-content space-y-4">
             <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <input type="text" id="search-input" oninput="filterRoster()" placeholder="Cari Nama atau Pangkat..." class="w-full sm:w-64 p-2.5 text-xs font-bold input-box rounded-sm placeholder-gray-600">
                 <span class="text-[10px] font-mono text-gray-400 uppercase">Daftar Anggota Aktif Mandalika PD</span>
             </div>
-            <div class="grid grid-cols-1 gap-3" id="roster-list-container">
-                </div>
+            <div class="grid grid-cols-1 gap-3" id="roster-list-container"></div>
         </div>
 
+        <!-- TAB 2: PENDAFTARAN -->
         <div id="tab-pendaftaran" class="tab-content hidden space-y-4">
-            <div class="mandalika-card p-4 rounded-sm bg-gradient-to-r from-amber-950/20 to-transparent">
-                <span class="text-[10px] font-bold text-amber-500 block uppercase">REGISTRATION CONSOLE</span>
+            <div class="mandalika-card p-4 rounded-sm">
+                <span class="text-[10px] font-bold text-indigo-400 block uppercase tracking-wider">REGISTRATION CONSOLE</span>
                 <h2 class="text-xs font-black text-white uppercase mt-0.5">Persetujuan Akun Calon Anggota Baru (Pending)</h2>
             </div>
-            <div class="grid grid-cols-1 gap-3" id="pendaftaran-list-container">
-                </div>
+            <div class="grid grid-cols-1 gap-3" id="pendaftaran-list-container"></div>
         </div>
 
+        <!-- TAB 3: PENGAJUAN CUTI -->
         <div id="tab-cuti" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <span class="text-[10px] font-bold text-gray-400 block uppercase">LEAVE MANAGEMENT</span>
                 <h2 class="text-xs font-black text-white uppercase mt-0.5">Daftar Permohonan Izin Cuti Anggota</h2>
             </div>
-            <div class="space-y-3" id="cuti-list-container">
-                </div>
+            <div class="space-y-3" id="cuti-list-container"></div>
         </div>
 
+        <!-- TAB 4: REKAP ABSENSI -->
         <div id="tab-absensi" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 flex justify-between items-center rounded-sm">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 block uppercase">OPERATIONAL REKAP</span>
                     <h2 class="text-xs font-black text-white uppercase mt-0.5">Kehadiran Operasional Mingguan</h2>
                 </div>
-                <select id="absensi-mode" onchange="renderAbsensi()" class="p-1.5 bg-[#12131a] border border-black text-xs text-white rounded-sm font-bold">
+                <select id="absensi-mode" onchange="renderAbsensi()" class="p-1.5 bg-[#0c0d12] border border-black text-xs text-white rounded-sm font-bold">
                     <option value="LOG">⏱️ Lihat Jam Kerja</option>
                     <option value="STATUS">🚨 Lihat Status Ringkat</option>
                 </select>
             </div>
-            <div class="bg-[#242424] border-2 border-black rounded-sm overflow-x-auto p-2">
+            <div class="bg-[#1a1b23] border-2 border-black rounded-sm overflow-x-auto p-2">
                 <table class="w-full text-left text-xs min-w-[600px] border-collapse">
                     <thead>
                         <tr class="border-b-2 border-black text-gray-400 text-[9px] uppercase tracking-wider">
@@ -96,16 +107,16 @@
                             <th class="py-2 px-2 text-center">Jumat</th>
                         </tr>
                     </thead>
-                    <tbody id="absensi-table-body" class="divide-y divide-black/40">
-                        </tbody>
+                    <tbody id="absensi-table-body" class="divide-y divide-black/40"></tbody>
                 </table>
             </div>
         </div>
 
     </main>
 
+    <!-- MODAL POPUP EDIT PROFILE -->
     <div id="manage-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="w-full max-w-sm p-5 bg-[#242424] border-2 border-black rounded-sm space-y-4 shadow-2xl">
+        <div class="w-full max-w-sm p-5 bg-[#1a1b23] border-2 border-black rounded-sm space-y-4 shadow-2xl">
             <h3 class="text-xs font-black uppercase tracking-wider text-white">✏️ KELOLA PROFIL ANGGOTA</h3>
             <input type="hidden" id="modal-id">
             <div>
@@ -114,7 +125,7 @@
             </div>
             <div>
                 <label class="block text-[9px] uppercase font-bold text-gray-400 mb-1">Pangkat</label>
-                <select id="modal-pangkat" class="w-full p-2 bg-[#12131a] border border-black text-xs text-white rounded-sm font-bold">
+                <select id="modal-pangkat" class="w-full p-2 bg-[#0c0d12] border border-black text-xs text-white rounded-sm font-bold">
                     <option value="BHARADA">BHARADA</option>
                     <option value="BHARATU">BHARATU</option>
                     <option value="BRIPDA">BRIPDA</option>
@@ -136,7 +147,7 @@
                 </div>
             </div>
             <div class="flex space-x-2 pt-2">
-                <button onclick="closeModal()" class="w-1/2 py-2 bg-[#12131a] border border-black text-gray-400 font-bold text-[10px] uppercase rounded-sm">Batal</button>
+                <button onclick="closeModal()" class="w-1/2 py-2 bg-[#0c0d12] border border-black text-gray-400 font-bold text-[10px] uppercase rounded-sm">Batal</button>
                 <button onclick="saveChanges()" class="w-1/2 py-2 bg-emerald-600 text-white font-bold text-[10px] uppercase border border-black rounded-sm">Simpan</button>
             </div>
         </div>
@@ -148,19 +159,23 @@
 
         let fullRoster = [], dutyLogs = [], leaveLogs = [];
 
+        // SECURITY CHECK
         const session = localStorage.getItem('session_pdmk');
         const user = session ? JSON.parse(session) : null;
         if (!user || (user.is_admin !== true && user.is_admin !== "true")) {
             window.location.href = 'dashboard.html';
         }
 
+        // FUNCTION: SWITCH TAB
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-main').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
+            
             document.getElementById(tabId).classList.remove('hidden');
             document.getElementById(`btn-${tabId}`).classList.add('active');
         }
 
+        // FUNCTION: INITIALIZE DATA
         async function initAdminPanel() {
             try {
                 const [rRes, dRes, lRes] = await Promise.all([
@@ -179,17 +194,15 @@
             } catch (err) { alert("Sinkronisasi database gagal."); }
         }
 
-        // RENDER TAB 1: DATA ANGGOTA (KHUSUS STATUS ACTIVE)
+        // FUNCTION: RENDER ROSTER ACTIVE
         function renderRoster() {
             const container = document.getElementById('roster-list-container');
             container.innerHTML = '';
-            
             const activePersonnel = fullRoster.filter(p => p.status_akun === 'ACTIVE');
             if(activePersonnel.length === 0) {
                 container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada anggota aktif ditemukan.</div>`;
                 return;
             }
-
             activePersonnel.forEach(p => {
                 container.innerHTML += `
                     <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -201,25 +214,23 @@
                             <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
                         </div>
                         <div class="w-full sm:w-auto flex justify-end">
-                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
+                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#0c0d12] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // LIVE FILTER UNTUK TAB ANGGOTA AKTIF
+        // FUNCTION: FILTER ROSTER
         function filterRoster() {
             const val = document.getElementById('search-input').value.toLowerCase();
             const container = document.getElementById('roster-list-container');
             container.innerHTML = '';
-
             const filtered = fullRoster.filter(p => p.status_akun === 'ACTIVE' && (p.nama_ic.toLowerCase().includes(val) || p.pangkat.toLowerCase().includes(val)));
             if(filtered.length === 0) {
                 container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Pencarian tidak ditemukan.</div>`;
                 return;
             }
-
             filtered.forEach(p => {
                 container.innerHTML += `
                     <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -231,31 +242,29 @@
                             <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
                         </div>
                         <div class="w-full sm:w-auto flex justify-end">
-                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
+                            <button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-4 py-2 bg-[#0c0d12] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA PROFIL</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // RENDER TAB 2: DAFTAR PENDAFTARAN BARU (KHUSUS STATUS PENDING)
+        // FUNCTION: RENDER PENDAFTARAN PENDING
         function renderPendaftaran() {
             const container = document.getElementById('pendaftaran-list-container');
             container.innerHTML = '';
-
             const pendingPersonnel = fullRoster.filter(p => p.status_akun === 'PENDING');
             if(pendingPersonnel.length === 0) {
                 container.innerHTML = `<div class="mandalika-card p-6 text-center text-xs text-gray-500 font-mono uppercase border-dashed">Aman! Tidak ada pendaftaran anggota baru yang tertunda.</div>`;
                 return;
             }
-
             pendingPersonnel.forEach(p => {
                 container.innerHTML += `
-                    <div class="mandalika-card p-4 border-amber-600/50 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="mandalika-card p-4 border-indigo-600/50 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                             <div class="flex items-center space-x-2">
-                                <h4 class="font-black text-amber-500 text-sm uppercase tracking-wide">${p.nama_ic}</h4>
-                                <span class="text-[9px] font-mono bg-amber-600 text-black px-1 rounded-sm font-bold">#${p.badge}</span>
+                                <h4 class="font-black text-indigo-400 text-sm uppercase tracking-wide">${p.nama_ic}</h4>
+                                <span class="text-[9px] font-mono bg-indigo-600 text-white px-1 rounded-sm font-bold">#${p.badge}</span>
                             </div>
                             <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">Mengajukan Pangkat: ${p.pangkat} — Menunggu Persetujuan Admin</p>
                         </div>
@@ -267,7 +276,7 @@
             });
         }
 
-        // RENDER TAB 3: DAFTAR CUTI TERTUNDA
+        // FUNCTION: RENDER CUTI
         function renderCuti() {
             const container = document.getElementById('cuti-list-container');
             container.innerHTML = '';
@@ -293,6 +302,7 @@
             });
         }
 
+        // FUNCTION: UPDATE STATUS CUTI
         async function updateStatusCuti(id, status) {
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
@@ -304,14 +314,9 @@
             } catch (e) { alert("Gagal update status cuti."); }
         }
 
-        // RENDER TAB 4: TABEL ABSENSI
+        // FUNCTION: RENDER ABSENSI
         function renderAbsensi() {
             const tbody = document.getElementById('absensi-table-body');
             const mode = document.getElementById('absensi-mode').value;
             tbody.innerHTML = '';
-            const hariKerja = ['2026-07-06', '2026-07-07', '2026-07-08', '2026-07-09', '2026-07-10'];
-
-            fullRoster.filter(p => p.status_akun === 'ACTIVE').forEach(p => {
-                let tr = `<tr><td class="py-2.5 px-2 font-bold text-white text-xs">${p.nama_ic}<span class="block text-[8px] font-normal font-mono text-gray-500 uppercase">${p.pangkat}</span></td>`;
-                hariKerja.forEach(tgl => {
-                    const logs = dut
+            const hariKerja = ['2026-07-06
