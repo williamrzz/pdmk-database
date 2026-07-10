@@ -163,17 +163,32 @@
             renderWhitelist();
         }
 
-        function renderPersonel() {
-            const container = document.getElementById('personel-container');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            const searchVal = document.getElementById('search-personel')?.value.toLowerCase() || '';
-
-            if(!Array.isArray(rosterData) || rosterData.length === 0) {
-                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-red-400 font-mono">Kosong.</div>`;
-                return;
-            }
+        function renderSurat() {
+    const container = document.getElementById('surat-container');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    if(!Array.isArray(suratData) || suratData.length === 0) {
+        container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada data.</div>`;
+        return;
+    }
+    suratData.forEach(s => {
+        if(!s) return;
+        container.innerHTML += `
+            <div class="mandalika-card p-4 rounded-sm space-y-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="px-1.5 py-0.5 text-[9px] font-black bg-amber-600 text-black rounded-sm uppercase">${s.jenis_surat || 'SURAT'}</span>
+                        <h4 class="font-black text-white text-xs uppercase mt-1">${s.nama_ic}</h4>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-1">
+                    <button onclick="prosesSurat('${s.id}', 'DENIED')" class="px-3 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">DENIED</button>
+                    <button onclick="prosesSurat('${s.id}', 'APPROVED')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">ACC</button>
+                </div>
+            </div>`;
+    });
+}
 
             let list = rosterData
                 .filter(p => p && p.nama_ic && String(p.status_akun).trim().toUpperCase() === 'ACTIVE' && 
