@@ -13,6 +13,10 @@
         .mandalika-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px #000000; }
         .input-box { background-color: #e2e8f0; border: 2px solid #000000; color: #000; }
         .tab-sub.active { background-color: #fff; color: #000; border: 2px solid #000; font-weight: bold; }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen pb-12" onload="initAdminPanel()">
@@ -37,7 +41,6 @@
             </a>
         </div>
     </nav>
-
 
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
@@ -67,7 +70,7 @@
         </div>
 
         <div id="sub-absensi" class="sub-content hidden space-y-4">
-            <div class="mandalika-card p-4 rounded-sm flex justify-between items-center">
+            <div class="mandalika-card p-4 flex justify-between items-center rounded-sm">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 block uppercase">OPERATIONAL MONITORING</span>
                     <h2 class="text-xs font-black text-white uppercase mt-0.5">Rekapitulasi Kehadiran Mingguan</h2>
@@ -182,7 +185,7 @@
             } catch (err) { alert("Sinkronisasi basis data gagal."); }
         }
 
-        // TAB ANGGOTA: Render List Anggota
+        // TAB ANGGOTA: Render List Anggota & Tombol Aktivasi PENDING / Kelola Profil
         function renderRoster(data) {
             const container = document.getElementById('roster-list-container');
             container.innerHTML = '';
@@ -191,15 +194,20 @@
                 const isPending = p.status_akun === 'PENDING';
                 
                 let btnAction = isPending
-                    ? `<button onclick="approvePersonnel('${p.id}')" class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm cursor-pointer">✓ Setujui Akun</button>`
-                    : `<button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-3 py-1.5 bg-[#12131a] text-gray-300 text-[10px] font-bold border border-black rounded-sm cursor-pointer">Kelola</button>`;
+                    ? `<button onclick="approvePersonnel('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">✓ SETUJUI AKUN</button>`
+                    : `<button onclick="openModal('${p.id}','${p.nama_ic}','${p.pangkat}',${p.total_jam_duty || 0},${p.poin_prp || 0})" class="px-3 py-1.5 bg-[#12131a] hover:bg-black text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">KELOLA</button>`;
+
+                let statusBadge = isPending 
+                    ? `<span class="text-[8px] bg-amber-500/20 text-amber-500 border border-amber-500/40 px-1 rounded-sm font-bold uppercase ml-2">PENDING</span>`
+                    : `<span class="text-[8px] bg-emerald-500/20 text-emerald-500 border border-emerald-500/40 px-1 rounded-sm font-bold uppercase ml-2">ACTIVE</span>`;
 
                 container.innerHTML += `
                     <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div>
                             <div class="flex items-center space-x-2">
-                                <h4 class="font-black text-white text-sm uppercase">${p.nama_ic}</h4>
+                                <h4 class="font-black text-white text-sm uppercase tracking-wide">${p.nama_ic}</h4>
                                 <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge}</span>
+                                ${statusBadge}
                             </div>
                             <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} Jam Kerja — 🚨 Poin PRP: ${p.poin_prp || 0}</p>
                         </div>
@@ -209,14 +217,14 @@
             });
         }
 
-        // Fitur Cari Real-time
+        // Fitur Cari Anggota Real-time
         function filterRoster() {
             const val = document.getElementById('search-input').value.toLowerCase();
             const filtered = fullRoster.filter(p => p.nama_ic.toLowerCase().includes(val) || p.pangkat.toLowerCase().includes(val));
             renderRoster(filtered);
         }
 
-        // TAB CUTI: Manajemen Pengajuan Cuti
+        // TAB CUTI: Kelola Izin Cuti
         function renderCuti() {
             const container = document.getElementById('cuti-list-container');
             container.innerHTML = '';
@@ -235,9 +243,9 @@
                             <p class="text-[10px] text-gray-400 italic mt-1">" ${c.remarks} "</p>
                             <span class="text-[9px] text-amber-500 block font-mono mt-0.5">📅 Rentang: ${c.tanggal_mulai} s/d ${c.tanggal_selesai}</span>
                         </div>
-                        <div class="flex space-x-1 w-full sm:w-auto justify-end">
-                            <button onclick="updateStatusCuti('${c.id}', 'DENIED')" class="px-2.5 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm">Tolak</button>
-                            <button onclick="updateStatusCuti('${c.id}', 'APPROVED')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm">Terima</button>
+                        <div class="flex space-x-2 w-full sm:w-auto justify-end">
+                            <button onclick="updateStatusCuti('${c.id}', 'DENIED')" class="px-3 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000]">TOLAK</button>
+                            <button onclick="updateStatusCuti('${c.id}', 'APPROVED')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000]">TERIMA</button>
                         </div>
                     </div>
                 `;
@@ -251,11 +259,11 @@
                     headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status_approval: status })
                 });
-                if (res.ok) { alert(`Cuti Berhasil di-${status}`); initAdminPanel(); }
+                if (res.ok) { alert(`Status cuti berhasil diperbarui ke: ${status}`); initAdminPanel(); }
             } catch (e) { alert("Gagal memperbarui status cuti."); }
         }
 
-        // TAB ABSENSI: Hitung & Susun Tabel otomatis
+        // TAB ABSENSI: Hitung Mingguan otomatis
         function renderAbsensi() {
             const tbody = document.getElementById('absensi-table-body');
             const mode = document.getElementById('absensi-mode').value;
@@ -292,7 +300,7 @@
             });
         }
 
-        // FUNGSI MODAL DIALOG MENGELOLA PROFIL
+        // MODAL HANDLERS
         function openModal(id, name, pangkat, jam, poin) {
             document.getElementById('modal-id').value = id;
             document.getElementById('modal-nama').value = name;
@@ -319,28 +327,5 @@
                     headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nama_ic: nama, pangkat: pangkat, total_jam_duty: jam, poin_prp: prp })
                 });
-                if (res.ok) { alert("Data Personel Diperbarui!"); closeModal(); initAdminPanel(); }
-            } catch (e) { alert("Gagal menyimpan pembaruan."); }
-        }
-
-        async function approvePersonnel(id) {
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0, poin_prp: 0 })
-                });
-                if (res.ok) { alert("Akun Anggota Berhasil Diaktifkan!"); initAdminPanel(); }
-            } catch (e) { alert("Gagal aktivasi."); }
-        }
-
-        // DOWNLOAD EXCEL REKAP
-        function downloadExcelData() {
-            const mapped = fullRoster.map(p => ({
-                "Nama Personel": p.nama_ic,
-                "Badge": p.badge,
-                "Pangkat": p.pangkat,
-                "Total Jam Duty": p.total_jam_duty || 0,
-                "Poin PRP": p.poin_prp || 0,
-                "Status": p.status_akun
-            }));
+                if (res.ok) { alert("Data Personel Berhasil Diperbarui!"); closeModal(); initAdminPanel(); }
+      
