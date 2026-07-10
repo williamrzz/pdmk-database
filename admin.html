@@ -246,16 +246,28 @@
         }
 
         async function prosesSurat(id, status) {
-            if (!id || !status) return;
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: BASE_HEADERS,
-                    body: JSON.stringify({ status_approval: status.toUpperCase() })
-                });
-                if (res.ok) initPanel();
-            } catch (e) {}
+    if (!id || !status) return;
+    try {
+        const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: {
+                ...BASE_HEADERS,
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({ 
+                status_approval: status.toUpperCase() 
+            })
+        });
+        if (res.ok) {
+            initPanel();
+        } else {
+            alert("Gagal memperbarui surat. Periksa hak akses database.");
         }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
 
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
@@ -285,16 +297,29 @@
         }
 
         async function accWhitelist(id) {
-            if (!id) return;
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: BASE_HEADERS,
-                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
-                });
-                if (res.ok) initPanel();
-            } catch(e) {}
+    if (!id) return;
+    try {
+        const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: {
+                ...BASE_HEADERS,
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({ 
+                status_akun: 'ACTIVE', 
+                total_jam_duty: 0 
+            })
+        });
+        if (res.ok) {
+            initPanel();
+        } else {
+            alert("Gagal merespon ke server. Periksa hak akses database.");
         }
+    } catch(e) {
+        console.error(e);
+    }
+}
+
 
         async function rejectWhitelist(id) {
             if(!confirm(`Hapus?`)) return;
