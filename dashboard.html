@@ -4,137 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDMK DATABASE - DASHBOARD</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .brutal-box { background: #ffffff; border: 3px solid #000000; box-shadow: 5px 5px 0px 0px #000000; }
-        .brutal-btn { background: #1C2541; color: #ffffff; border: 3px solid #000000; box-shadow: 4px 4px 0px 0px #000000; transition: all 0.1s ease; }
-        .brutal-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #000000; }
-        .brutal-input { w-full; p-2.5; border: 3px solid #000000; font-weight: 600; }
-        .brutal-input:focus { outline: none; }
+        /* Custom Mandalika Dark Theme UI */
+        body {
+            background-color: #0D0D0D;
+            color: #E0E0E0;
+        }
+        .panel-card {
+            background-color: #161616;
+            border: 1px solid #262626;
+        }
+        .sub-card {
+            background-color: #1E1E1E;
+            border: 1px solid #2A2A2A;
+        }
+        .text-neon-green {
+            color: #00FF87;
+        }
+        .bg-neon-green {
+            background-color: #00FF87;
+        }
     </style>
 </head>
-<body class="bg-[#E2E8F0] min-h-screen p-4 font-sans text-black">
+<body class="min-h-screen font-sans antialiased pb-10">
 
-    <!-- Top Navigation -->
-    <div class="max-w-4xl mx-auto mb-6 p-4 brutal-box rounded-lg flex justify-between items-center bg-white">
-        <div>
-            <h1 class="text-xl font-black italic text-[#1C2541]">PDMK SYSTEM</h1>
-            <p class="text-xs font-bold text-gray-500 uppercase">Mandalika Police Department</p>
-        </div>
-        <button onclick="handleLogout()" class="px-4 py-2 bg-red-500 border-2 border-black font-bold text-xs uppercase text-white shadow-[2px_2px_0px_0px_#000000] cursor-pointer">Logout</button>
-    </div>
-
-    <!-- Profil Anggota -->
-    <div class="max-w-4xl mx-auto mb-6 p-5 brutal-box rounded-lg bg-yellow-300">
-        <h2 class="text-sm font-black uppercase tracking-wider text-gray-700">🎖️ Personnel Profile</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-            <div>
-                <span class="block text-[10px] uppercase font-bold text-gray-600">Nama IC</span>
-                <span id="user-name" class="font-extrabold text-base">-</span>
+    <!-- TOP NAVIGATION BAR (Minimalis Khas UCP Panel) -->
+    <nav class="bg-[#111111] border-b border-[#222222] px-4 py-3 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm font-black tracking-wider text-neon-green uppercase">MANDALIKA PDMK DATABASE</span>
             </div>
-            <div>
-                <span class="block text-[10px] uppercase font-bold text-gray-600">Nomor Badge</span>
-                <span id="user-badge" class="font-extrabold text-base">-</span>
-            </div>
-            <div>
-                <span class="block text-[10px] uppercase font-bold text-gray-600">Pangkat</span>
-                <span id="user-pangkat" class="bg-black text-white px-1.5 py-0.5 text-xs font-black rounded">-</span>
-            </div>
-            <div>
-                <span class="block text-[10px] uppercase font-bold text-gray-600">Gaji Pokok</span>
-                <span id="user-gaji" class="font-extrabold text-base text-green-700">-</span>
+            <div class="flex items-center space-x-2">
+                <!-- Status Badge -->
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded bg-[#1A3A2A] text-neon-green border border-[#22543D] uppercase">
+                    ✓ Verified Personnel
+                </span>
+                <button onclick="handleLogout()" class="text-[10px] font-bold px-3 py-1 rounded bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white uppercase transition-all cursor-pointer">
+                    Keluar
+                </button>
             </div>
         </div>
+    </nav>
 
-        <!-- Tombol Admin Rahasia -->
-        <div id="admin-panel-btn" class="hidden mt-4 pt-3 border-t-2 border-black">
-            <button onclick="alert('Halaman Rekap Gaji Admin sedang disiapkan pada modul berikutnya!')" class="w-full py-2 bg-purple-600 text-white font-black uppercase border-3 border-black shadow-[3px_3px_0px_0px_#000000] text-sm tracking-wide cursor-pointer">
-                ⚙️ Open High Command Admin Panel
-            </button>
-        </div>
-    </div>
+    <div class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
-    <!-- Konten Utama: Form Absen -->
-    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Form Duty Log -->
-        <div class="p-5 brutal-box rounded-lg bg-white">
-            <h3 class="text-base font-black uppercase mb-4 text-[#1C2541]">📸 Transmit Duty Log</h3>
-            <div class="space-y-3">
+        <!-- KOTAK INFORMASI AKUN PERSONNEL (PERSIS SEPERTI GAMBAR CONTOH) -->
+        <div class="p-4 panel-card rounded-md">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Informasi Akun Personnel</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center md:text-left">
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Tanggal Patroli</label>
-                    <input type="date" id="duty-date" class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
+                    <span class="block text-[10px] uppercase font-bold text-gray-500">Nama IC / UCP</span>
+                    <span id="user-name" class="font-bold text-white">-</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-gray-500">Nomor Badge</span>
+                    <span id="user-badge" class="font-bold text-blue-400">-</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-gray-500">Pangkat Saat Ini</span>
+                    <span id="user-pangkat" class="inline-block mt-0.5 font-black text-xs text-neon-green uppercase">-</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] uppercase font-bold text-gray-500">Gaji Pokok</span>
+                    <span id="user-gaji" class="font-bold text-yellow-400">-</span>
+                </div>
+            </div>
+
+            <!-- Tombol Rahasia High Command Admin -->
+            <div id="admin-panel-btn" class="hidden mt-4 pt-3 border-t border-[#222222]">
+                <button onclick="alert('Menu High Command Rekap Gaji sedang disiapkan Jendral!')" class="w-full py-2 bg-purple-600/20 text-purple-400 border border-purple-500/30 text-xs font-bold uppercase rounded hover:bg-purple-600 hover:text-white transition-all cursor-pointer">
+                    ⚙️ Open High Command Admin Panel
+                </button>
+            </div>
+        </div>
+
+        <!-- STRUKTUR FORM UTAMA (MINIMALIS GRID) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- FORM SETOR DUTY LOG -->
+            <div class="p-5 panel-card rounded-md space-y-4">
+                <div class="flex items-center space-x-2 pb-2 border-b border-[#222222]">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">🚨 Transmit Duty Log</span>
+                </div>
+                
+                <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1">Jam Mulai</label>
-                        <input type="time" id="duty-start" class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tanggal Patroli</label>
+                        <input type="date" id="duty-date" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Jam Mulai</label>
+                            <input type="time" id="duty-start" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Jam Selesai</label>
+                            <input type="time" id="duty-end" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase mb-1">Jam Selesai</label>
-                        <input type="time" id="duty-end" class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Link Screenshot Evidence</label>
+                        <input type="text" id="duty-link" placeholder="https://i.imgur.com/..." class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
                     </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Keterangan / Catatan Dinas</label>
+                        <textarea id="duty-remarks" placeholder="Patroli Lingkar Kota Mandalika..." class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green h-20 resize-none"></textarea>
+                    </div>
+                    <button onclick="submitDuty()" class="w-full py-2.5 bg-neon-green text-black font-bold uppercase tracking-wider text-xs rounded hover:bg-emerald-400 transition-all cursor-pointer mt-2">
+                        Kirim Laporan Duty
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Link Evidence / Screenshot</label>
-                    <input type="text" id="duty-link" placeholder="https://i.imgur.com/..." class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
-                    <p class="text-[10px] text-gray-500 mt-1">*Sementara gunakan link gambar, fitur upload galeri langsung menyusul.</p>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Catatan / Keterangan Dinas</label>
-                    <textarea id="duty-remarks" placeholder="Patroli Kota, Merespon 10-86, dll." class="w-full p-2 border-3 border-black font-semibold focus:outline-none h-20"></textarea>
-                </div>
-                <button onclick="submitDuty()" class="w-full py-2.5 brutal-btn font-bold uppercase tracking-wider text-sm cursor-pointer">Kirim Log Absen</button>
             </div>
-        </div>
 
-        <!-- Form Izin Cuti -->
-        <div class="p-5 brutal-box rounded-lg bg-white">
-            <h3 class="text-base font-black uppercase mb-4 text-gray-700">📝 Request Leave (Izin Cuti)</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Mulai Cuti</label>
-                    <input type="date" id="cuti-start" class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
+            <!-- FORM PERIZINAN CUTI -->
+            <div class="p-5 panel-card rounded-md space-y-4">
+                <div class="flex items-center space-x-2 pb-2 border-b border-[#222222]">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-300">📝 Request Leave (Izin Cuti)</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Selesai Cuti</label>
-                    <input type="date" id="cuti-end" class="w-full p-2 border-3 border-black font-semibold focus:outline-none">
+
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Mulai Cuti</label>
+                            <input type="date" id="cuti-start" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Selesai Cuti</label>
+                            <input type="date" id="cuti-end" class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Alasan Penjelasan Cuti</label>
+                        <textarea id="cuti-remarks" placeholder="Urusan OOC / Keperluan keluarga di dunia nyata..." class="w-full p-2 bg-[#1A1A1A] border border-[#333] rounded text-sm font-semibold text-white focus:outline-none focus:border-neon-green h-[142px] resize-none"></textarea>
+                    </div>
+                    <button onclick="submitCuti()" class="w-full py-2.5 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-xs rounded hover:bg-gray-800 transition-all cursor-pointer mt-2">
+                        Ajukan Permohonan Cuti
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-1">Alasan Cuti / Izin</label>
-                    <textarea id="cuti-remarks" placeholder="Alasan kepentingan OOC / IC..." class="w-full p-2 border-3 border-black font-semibold focus:outline-none h-32"></textarea>
-                </div>
-                <button onclick="submitCuti()" class="w-full py-2.5 brutal-btn font-bold uppercase tracking-wider text-sm bg-gray-600 cursor-pointer">Ajukan Cuti</button>
             </div>
+
         </div>
 
     </div>
 
+    <!-- CODE SCRIPT INTEGRASI JALUR GAIB SUPABASE -->
     <script>
         const SUPABASE_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
 
-        // Proteksi Halaman: Cek apakah sudah login?
+        // Cek Sesi Login HP
         const sessionData = localStorage.getItem('session_pdmk');
         if (!sessionData) {
-            alert("Akses ditolak! Anda harus login terlebih dahulu.");
+            alert("Sesi habis / Belum Login!");
             window.location.href = 'index.html';
         }
 
         const user = JSON.parse(sessionData);
 
-        // Tampilkan Data Profil Anggota
+        // Pasang data profile
         document.getElementById('user-name').innerText = user.nama_ic;
         document.getElementById('user-badge').innerText = user.badge;
         document.getElementById('user-pangkat').innerText = user.pangkat;
         document.getElementById('user-gaji').innerText = `$${user.gaji_pokok.toLocaleString()}`;
 
-        // Jika dia Admin, munculkan tombol rahasia High Command
+        // Aktifkan panel admin rahasia jika true
         if (user.is_admin === true || user.is_admin === "true") {
             document.getElementById('admin-panel-btn').classList.remove('hidden');
         }
 
-        // FUNGSI SUBMIT DUTY LOG
+        // SUBMIT LOG DUTY PATROLI
         async function submitDuty() {
             const tanggal = document.getElementById('duty-date').value;
             const mulai = document.getElementById('duty-start').value;
@@ -142,7 +182,7 @@
             const link = document.getElementById('duty-link').value.trim();
             const remarks = document.getElementById('duty-remarks').value.trim();
 
-            if(!tanggal || !mulai || !selesai || !link) return alert("Mohon lengkapi data absen!");
+            if(!tanggal || !mulai || !selesai || !link) return alert("Mohon lengkapi semua kolom log!");
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/laporan_duty`, {
@@ -165,22 +205,20 @@
                 });
 
                 if(response.ok) {
-                    alert("✅ Log Absen berhasil dikirim ke database! Menunggu approval Admin.");
+                    alert("✅ Laporan Duty Log berhasil terkirim ke database!");
                     document.getElementById('duty-link').value = '';
                     document.getElementById('duty-remarks').value = '';
-                } else {
-                    alert("Gagal mengirim log.");
-                }
+                } else { alert("Gagal mengirim data."); }
             } catch (error) { alert("Masalah koneksi database."); }
         }
 
-        // FUNGSI SUBMIT CUTI
+        // SUBMIT FORM IZIN CUTI
         async function submitCuti() {
             const start = document.getElementById('cuti-start').value;
             const end = document.getElementById('cuti-end').value;
             const remarks = document.getElementById('cuti-remarks').value.trim();
 
-            if(!start || !end || !remarks) return alert("Mohon isi form cuti dengan lengkap!");
+            if(!start || !end || !remarks) return alert("Lengkapi form pengajuan cuti!");
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/laporan_cuti`, {
@@ -203,8 +241,8 @@
                 if(response.ok) {
                     alert("✅ Pengajuan cuti berhasil dikirim!");
                     document.getElementById('cuti-remarks').value = '';
-                } else { alert("Gagal mengirim izin cuti."); }
-            } catch (error) { alert("Masalah koneksi."); }
+                } else { alert("Gagal mengirim pengajuan."); }
+            } catch (error) { alert("Masalah koneksi database."); }
         }
 
         function handleLogout() {
@@ -213,4 +251,5 @@
         }
     </script>
 </body>
-</html>
+                        </html>
+                                                                                                                              
