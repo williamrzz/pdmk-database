@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTERNAL AFFAIRS - MAIN PANEL</title>
+    <title>MKPD PANEL - HIGH COMMAND TEAM</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         body { background-color: #12131a; color: #d1d5db; font-family: sans-serif; }
@@ -17,16 +17,18 @@
 </head>
 <body class="min-h-screen pb-12" onload="initPanel()">
 
+    <!-- HEADER: REBRANDED TO MKPD PANEL -->
     <header class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div>
-                <span class="block text-[8px] text-gray-500 font-bold uppercase tracking-wider">INTERNAL AFFAIRS</span>
-                <span class="text-xs font-black text-white italic tracking-wide uppercase">HIGH COMMAND CONSOLE</span>
+                <span class="block text-[9px] text-indigo-400 font-black uppercase tracking-wider">HIGH COMMAND TEAM</span>
+                <span class="text-sm font-black text-white italic tracking-wide uppercase">MKPD PANEL</span>
             </div>
             <a href="dashboard.html" class="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-red-600 text-white border-2 border-black rounded-sm shadow-[2px_2px_0px_#000]">Exit</a>
         </div>
     </header>
 
+    <!-- NAVIGATION BAR -->
     <div class="bg-[#16171e] border-b border-black py-3 px-4">
         <div class="max-w-4xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button onclick="switchTab('tab-personnel')" id="btn-personnel" class="tab-pill active bg-[#059669] whitespace-nowrap cursor-pointer">👥 Personel</button>
@@ -40,8 +42,10 @@
         </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
+        <!-- 1. TAB PERSONEL -->
         <div id="tab-personnel" class="tab-content space-y-4">
             <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <input type="text" id="search-personel" oninput="renderPersonel()" placeholder="Cari nama atau pangkat..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm">
@@ -50,6 +54,7 @@
             <div class="grid grid-cols-1 gap-3" id="personel-container"></div>
         </div>
 
+        <!-- 2. TAB SURAT (IZIN & CUTI) -->
         <div id="tab-surat" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <h2 class="text-xs font-black text-white uppercase">✉️ Verifikasi Surat Izin & Cuti Anggota</h2>
@@ -57,6 +62,7 @@
             <div class="grid grid-cols-1 gap-3" id="surat-container"></div>
         </div>
 
+        <!-- 4. TAB WHITELIST -->
         <div id="tab-whitelist" class="tab-content hidden space-y-4">
             <div class="mandalika-card p-4 rounded-sm">
                 <h2 class="text-xs font-black text-white uppercase">📝 Request Whitelist Akun UCP Baru</h2>
@@ -66,6 +72,7 @@
 
     </main>
 
+    <!-- MODAL EDIT/MANAGE PERSONEL -->
     <div id="modal-manage" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
         <div class="w-full max-w-sm p-5 bg-[#1a1b23] border-2 border-black rounded-sm space-y-4 shadow-2xl">
             <h3 class="text-xs font-black uppercase text-white">✏️ KELOLA ANGGOTA</h3>
@@ -103,15 +110,12 @@
         const DB_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
         const DB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
         
-        // Terintegrasi ke Webhook Payroll otomatis dari sistem Jendral
         const DISCORD_PAYROLL_WEBHOOK = "https://discord.com/api/webhooks/1486137739022700634/m9pjXqS2G9DV8L8DcHgIVG5I1yriyRwYAECguI6Tw3v2S-t5isC9r_5x13zCu-VxT";
 
-        // Variabel global pengaman header Supabase
-        const HTTP_HEADERS = {
+        const BASE_HEADERS = {
             'apikey': DB_KEY,
             'Authorization': `Bearer ${DB_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
+            'Content-Type': 'application/json'
         };
 
         let rosterData = [], suratData = [];
@@ -196,7 +200,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: HTTP_HEADERS,
+                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
                     body: JSON.stringify(payload)
                 });
                 if(res.ok) { closeModal(); initPanel(); }
@@ -211,7 +215,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'DELETE',
-                    headers: HTTP_HEADERS
+                    headers: BASE_HEADERS
                 });
                 if(res.ok) { alert(`${nama} Berhasil Dihapus/Dipecat.`); closeModal(); initPanel(); }
             } catch (e) { alert("Gagal menghapus anggota."); }
@@ -247,7 +251,7 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: HTTP_HEADERS,
+                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
                     body: JSON.stringify({ status_approval: status })
                 });
                 
@@ -260,7 +264,7 @@
 
         async function sendSuratToDiscord(nama, jenis, alasan, tglM, tglS) {
             const embedData = {
-                username: "INTERNAL AFFAIRS PERMISSION SYSTEM",
+                username: "MKPD PERMISSION SYSTEM",
                 embeds: [{
                     title: `✉️ PERIZINAN ${jenis.toUpperCase()} DISETUJUI`,
                     color: 3066993,
@@ -305,33 +309,41 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: HTTP_HEADERS,
-                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
+                    headers: {
+                        'apikey': DB_KEY,
+                        'Authorization': `Bearer ${DB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({ 
+                        status_akun: 'ACTIVE', 
+                        total_jam_duty: 0 
+                    })
                 });
-                if(res.ok) { 
+
+                if (res.ok) { 
                     alert(`Whitelist UCP ${nama} sukses diaktifkan!`); 
                     initPanel(); 
                 } else {
-                    alert("Gagal memproses akun. Periksa sinkronisasi.");
+                    const dataTarget = rosterData.find(p => p.id === id);
+                    if(dataTarget) {
+                        await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, { method: 'DELETE', headers: BASE_HEADERS });
+                        await fetch(`${DB_URL}/rest/v1/roster_personel`, {
+                            method: 'POST',
+                            headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
+                            body: JSON.stringify({
+                                nama_ic: dataTarget.nama_ic,
+                                badge: dataTarget.badge,
+                                pangkat: dataTarget.pangkat,
+                                status_akun: 'ACTIVE',
+                                total_jam_duty: 0
+                            })
+                        });
+                        alert(`Whitelist UCP ${nama} berhasil disinkronisasi ke ACTIVE!`);
+                        initPanel();
+                    }
                 }
             } catch(e) { alert("Sistem error saat memproses whitelist."); }
         }
 
-        async function rejectWhitelist(id, nama) {
-            if(!confirm(`Tolak dan hapus pendaftaran UCP dari ${nama}?`)) return;
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'DELETE',
-                    headers: HTTP_HEADERS
-                });
-                if(res.ok) { 
-                    alert(`Pendaftaran UCP ${nama} telah ditolak dan dihapus.`); 
-                    initPanel(); 
-                } else {
-                    alert("Gagal menghapus data request.");
-                }
-            } catch(e) { alert("Gagal menolak whitelist."); }
-        }
-    </script>
-</body>
-</html>
+        async functi
