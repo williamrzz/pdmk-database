@@ -273,15 +273,28 @@
         }
 
         async function prosesSurat(id, status) {
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
-                    body: JSON.stringify({ status_approval: status })
-                });
-                if(res.ok) { initPanel(); }
-            } catch (e) {}
+    if (!id || !status) return;
+    try {
+        const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: { 
+                ...BASE_HEADERS, 
+                'Prefer': 'return=minimal' 
+            },
+            body: JSON.stringify({ 
+                status_approval: status.toUpperCase() 
+            })
+        });
+        if (res.ok) { 
+            initPanel(); 
+        } else {
+            console.error("Gagal update status surat.");
         }
+    } catch (e) {
+        console.error("Error sistem surat.");
+    }
+}
+
 
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
@@ -311,15 +324,28 @@
         }
 
         async function accWhitelist(id) {
-            try {
-                const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
-                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
-                });
-                if (res.ok) { initPanel(); }
-            } catch(e) {}
+    if (!id) return;
+    try {
+        const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: { 
+                ...BASE_HEADERS, 
+                'Prefer': 'return=minimal' 
+            },
+            body: JSON.stringify({ 
+                status_akun: 'ACTIVE', 
+                total_jam_duty: 0 
+            })
+        });
+        if (res.ok) { 
+            initPanel(); 
+        } else {
+            console.error("Gagal update status.");
         }
+    } catch(e) {
+        console.error("Error sistem whitelist.");
+    }
+}
 
         async function rejectWhitelist(id) {
             if(!confirm(`Hapus?`)) return;
