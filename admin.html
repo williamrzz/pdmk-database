@@ -17,7 +17,7 @@
 </head>
 <body class="min-h-screen pb-12" onload="initPanel()">
 
-    <!-- HEADER: REBRANDED TO MKPD PANEL -->
+    <!-- HEADER: MKPD PANEL -->
     <header class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div>
@@ -51,7 +51,9 @@
                 <input type="text" id="search-personel" oninput="renderPersonel()" placeholder="Cari nama atau pangkat..." class="w-full sm:w-64 p-2 text-xs font-bold input-box rounded-sm">
                 <span class="text-[10px] font-mono text-gray-400 uppercase">Urutan Jam Duty Tertinggi</span>
             </div>
-            <div class="grid grid-cols-1 gap-3" id="personel-container"></div>
+            <div class="grid grid-cols-1 gap-3" id="personel-container">
+                <div class="text-xs text-gray-400 animate-pulse font-mono p-4">Menghubungkan ke server...</div>
+            </div>
         </div>
 
         <!-- 2. TAB SURAT (IZIN & CUTI) -->
@@ -109,7 +111,6 @@
     <script>
         const DB_URL = "https://yizoloveqztkgrlxdnvq.supabase.co";
         const DB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
-        
         const DISCORD_PAYROLL_WEBHOOK = "https://discord.com/api/webhooks/1486137739022700634/m9pjXqS2G9DV8L8DcHgIVG5I1yriyRwYAECguI6Tw3v2S-t5isC9r_5x13zCu-VxT";
 
         const BASE_HEADERS = {
@@ -123,34 +124,51 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('hidden');
+            
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.remove('hidden');
+
             if(tabId === 'tab-personnel') document.getElementById('btn-personel').classList.add('active');
             if(tabId === 'tab-surat') document.getElementById('btn-surat').classList.add('active');
             if(tabId === 'tab-whitelist') document.getElementById('btn-whitelist').classList.add('active');
         }
 
+        // PERBAIKAN UTAMA: Penanganan Error Terisolasi agar Script Tidak Macet
         async function initPanel() {
             try {
-                const [rRes, sRes] = await Promise.all([
-                    fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: { 'apikey': DB_KEY } }),
-                    fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } })
-                ]);
-                rosterData = await rRes.json();
-                suratData = await sRes.json();
-                
-                renderPersonel();
-                renderSurat();
-                renderWhitelist();
-            } catch (err) { console.error("Gagal sinkronisasi database."); }
+                // Fetch data Roster Personel
+                const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: { 'apikey': DB_KEY } });
+                if(rRes.ok) { rosterData = await rRes.json(); } else { console.error("Gagal mengambil data roster"); }
+            } catch(e) { console.error("Koneksi roster bermasalah:", e); }
+
+            try {
+                // Fetch data Laporan Cuti
+                const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } });
+                if(sRes.ok) { suratData = await sRes.json(); } else { console.error("Gagal mengambil data cuti"); }
+            } catch(e) { console.error("Koneksi surat bermasalah:", e); }
+            
+            // Render paksa data yang berhasil dimuat tanpa peduli ada error atau tidak
+            renderPersonel();
+            renderSurat();
+            renderWhitelist();
         }
 
         function renderPersonel() {
             const container = document.getElementById('personel-container');
+            if(!container) return;
             container.innerHTML = '';
-            const searchVal = document.getElementById('search-personel').value.toLowerCase();
+            
+            const searchVal = document.getElementById('search-personel')?.value.toLowerCase() || '';
 
+            if(!Array.isArray(rosterData) || rosterData.length === 0) {
+                container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Gagal sinkron data / Data Kosong.</div>`;
+                return;
+            }
+
+            // Filter diperluas agar pengecekan string 'ACTIVE' aman dari spasi atau huruf kecil
             let list = rosterData
-                .filter(p => p.status_akun === 'ACTIVE' && (p.nama_ic.toLowerCase().includes(searchVal) || p.pangkat.toLowerCase().includes(searchVal)))
+                .filter(p => p && p.nama_ic && String(p.status_akun).trim().toUpperCase() === 'ACTIVE' && 
+                            (p.nama_ic.toLowerCase().includes(searchVal) || (p.pangkat && p.pangkat.toLowerCase().includes(searchVal))))
                 .sort((a, b) => (b.total_jam_duty || 0) - (a.total_jam_duty || 0));
 
             if(list.length === 0) {
@@ -164,11 +182,11 @@
                         <div>
                             <div class="flex items-center space-x-2">
                                 <h4 class="font-black text-white text-sm uppercase tracking-wide">${p.nama_ic}</h4>
-                                <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge}</span>
+                                <span class="text-[9px] font-mono bg-black text-gray-400 px-1 rounded-sm">#${p.badge || '00'}</span>
                             </div>
-                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat} — ⏱️ ${p.total_jam_duty || 0} JAM DUTY</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">${p.pangkat || 'POLISI'} — ⏱️ ${p.total_jam_duty || 0} JAM DUTY</p>
                         </div>
-                        <button onclick="openManageModal('${p.id}', '${p.nama_ic}', '${p.pangkat}')" class="px-3 py-1.5 bg-[#0c0d12] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">MANAGE</button>
+                        <button onclick="openManageModal('${p.id}', '${p.nama_ic}', '${p.pangkat || ''}')" class="px-3 py-1.5 bg-[#0c0d12] text-gray-300 text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">MANAGE</button>
                     </div>`;
             });
         }
@@ -194,7 +212,7 @@
             let payload = { nama_ic: namaBaru, pangkat: pangkatBaru };
             if(pangkatBaru !== pangkatLama) {
                 payload.total_jam_duty = 0;
-                alert(`Pangkat berubah! Jam duty untuk ${namaBaru} otomatis direset ke 0.`);
+                alert(`Pangkat berubah! Jam duty otomatis direset ke 0.`);
             }
 
             try {
@@ -210,38 +228,41 @@
         async function deletePersonel() {
             const id = document.getElementById('edit-id').value;
             const nama = document.getElementById('edit-nama').value;
-            if(!confirm(`APAKAH ANDA YAKIN INGIN MEMECAT ${nama}?\nData akan dihapus permanen dari database!`)) return;
+            if(!confirm(`APAKAH ANDA YAKIN INGIN MEMECAT ${nama}?`)) return;
 
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'DELETE',
                     headers: BASE_HEADERS
                 });
-                if(res.ok) { alert(`${nama} Berhasil Dihapus/Dipecat.`); closeModal(); initPanel(); }
+                if(res.ok) { alert("Berhasil Dihapus."); closeModal(); initPanel(); }
             } catch (e) { alert("Gagal menghapus anggota."); }
         }
 
         function renderSurat() {
             const container = document.getElementById('surat-container');
+            if(!container) return;
             container.innerHTML = '';
-            if(suratData.length === 0) {
+            
+            if(!Array.isArray(suratData) || suratData.length === 0) {
                 container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono">Tidak ada pengajuan surat (Izin/Cuti).</div>`;
                 return;
             }
             suratData.forEach(s => {
+                if(!s) return;
                 container.innerHTML += `
                     <div class="mandalika-card p-4 rounded-sm space-y-2">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="px-1.5 py-0.5 text-[9px] font-black bg-amber-600 text-black rounded-sm uppercase">${s.jenis_surat || 'IZIN/CUTI'}</span>
-                                <h4 class="font-black text-white text-xs uppercase mt-1">${s.nama_ic} (#${s.badge})</h4>
+                                <h4 class="font-black text-white text-xs uppercase mt-1">${s.nama_ic} (#${s.badge || '00'})</h4>
                             </div>
-                            <span class="text-[9px] font-mono text-gray-400">${s.tanggal_mulai} s/d ${s.tanggal_selesai}</span>
+                            <span class="text-[9px] font-mono text-gray-400">${s.tanggal_mulai || ''} s/d ${s.tanggal_selesai || ''}</span>
                         </div>
-                        <p class="text-[11px] text-gray-300 italic bg-black/30 p-2 rounded-sm border border-black/40">"${s.remarks}"</p>
+                        <p class="text-[11px] text-gray-300 italic bg-black/30 p-2 rounded-sm border border-black/40">"${s.remarks || '-'}"</p>
                         <div class="flex justify-end gap-2 pt-1">
-                            <button onclick="prosesSurat('${s.id}', 'DENIED', '${s.nama_ic}', '${s.jenis_surat}')" class="px-3 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">DENIED</button>
-                            <button onclick="prosesSurat('${s.id}', 'APPROVED', '${s.nama_ic}', '${s.jenis_surat}', '${s.remarks}', '${s.tanggal_mulai}', '${s.tanggal_selesai}')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">ACC</button>
+                            <button onclick="prosesSurat('${s.id}', 'DENIED', '${s.nama_ic}', '${s.jenis_surat || 'IZIN'}')" class="px-3 py-1 bg-red-700 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">DENIED</button>
+                            <button onclick="prosesSurat('${s.id}', 'APPROVED', '${s.nama_ic}', '${s.jenis_surat || 'IZIN'}', '${s.remarks || ''}', '${s.tanggal_mulai || ''}', '${s.tanggal_selesai || ''}')" class="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">ACC</button>
                         </div>
                     </div>`;
             });
@@ -254,7 +275,6 @@
                     headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
                     body: JSON.stringify({ status_approval: status })
                 });
-                
                 if(res.ok) {
                     if(status === 'APPROVED') { await sendSuratToDiscord(nama, jenis, alasan, tglM, tglS); }
                     initPanel();
@@ -282,8 +302,11 @@
 
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
+            if(!container) return;
             container.innerHTML = '';
-            let pendingList = rosterData.filter(p => p.status_akun === 'PENDING');
+            
+            if(!Array.isArray(rosterData)) return;
+            let pendingList = rosterData.filter(p => p && String(p.status_akun).trim().toUpperCase() === 'PENDING');
 
             if(pendingList.length === 0) {
                 container.innerHTML = `<div class="mandalika-card p-4 text-center text-xs text-gray-500 font-mono border-dashed">Tidak ada request whitelist UCP baru.</div>`;
@@ -295,7 +318,7 @@
                     <div class="mandalika-card p-4 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-indigo-600/40">
                         <div>
                             <h4 class="font-black text-indigo-400 text-sm uppercase tracking-wide">${p.nama_ic}</h4>
-                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">REQ UCP BADGE: #${p.badge} — PANGKAT: ${p.pangkat}</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 uppercase">REQ UCP BADGE: #${p.badge || '00'} — PANGKAT: ${p.pangkat || 'BHARADA'}</p>
                         </div>
                         <div class="flex gap-2 justify-end">
                             <button onclick="rejectWhitelist('${p.id}', '${p.nama_ic}')" class="px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white text-[10px] font-black border border-black rounded-sm shadow-[2px_2px_0px_#000] cursor-pointer">DENIED</button>
@@ -309,41 +332,12 @@
             try {
                 const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
                     method: 'PATCH',
-                    headers: {
-                        'apikey': DB_KEY,
-                        'Authorization': `Bearer ${DB_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ 
-                        status_akun: 'ACTIVE', 
-                        total_jam_duty: 0 
-                    })
+                    headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
+                    body: JSON.stringify({ status_akun: 'ACTIVE', total_jam_duty: 0 })
                 });
 
                 if (res.ok) { 
                     alert(`Whitelist UCP ${nama} sukses diaktifkan!`); 
                     initPanel(); 
                 } else {
-                    const dataTarget = rosterData.find(p => p.id === id);
-                    if(dataTarget) {
-                        await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, { method: 'DELETE', headers: BASE_HEADERS });
-                        await fetch(`${DB_URL}/rest/v1/roster_personel`, {
-                            method: 'POST',
-                            headers: { ...BASE_HEADERS, 'Prefer': 'return=representation' },
-                            body: JSON.stringify({
-                                nama_ic: dataTarget.nama_ic,
-                                badge: dataTarget.badge,
-                                pangkat: dataTarget.pangkat,
-                                status_akun: 'ACTIVE',
-                                total_jam_duty: 0
-                            })
-                        });
-                        alert(`Whitelist UCP ${nama} berhasil disinkronisasi ke ACTIVE!`);
-                        initPanel();
-                    }
-                }
-            } catch(e) { alert("Sistem error saat memproses whitelist."); }
-        }
-
-        async functi
+                
