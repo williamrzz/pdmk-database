@@ -139,17 +139,38 @@
         }
 
         async function initPanel() {
-    const statusEl = document.getElementById('loading-status');
     try {
-        const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { headers: { 'apikey': DB_KEY } });
+        const rRes = await fetch(`${DB_URL}/rest/v1/roster_personel`, { 
+            headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}` } 
+        });
         if(rRes.ok) { 
             rosterData = await rRes.json(); 
-        } else { 
-            if(statusEl) statusEl.innerHTML = "❌ Gagal memuat data personel (Error 401/403).";
         }
-    } catch(e) { 
-        if(statusEl) statusEl.innerHTML = "❌ Koneksi roster terputus.";
+    } catch(e) {
+        console.error(e);
     }
+
+    try {
+        const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { 
+            headers: { 'apikey': DB_KEY, 'Authorization': `Bearer ${DB_KEY}` } 
+        });
+        if(sRes.ok) { 
+            suratData = await sRes.json(); 
+        }
+    } catch(e) {
+        console.error(e);
+    }
+    
+    const statusEl = document.getElementById('loading-status');
+    if (statusEl) {
+        statusEl.remove();
+    }
+    
+    renderPersonel();
+    renderSurat();
+    renderWhitelist();
+}
+
 
     try {
         const sRes = await fetch(`${DB_URL}/rest/v1/laporan_cuti?status_approval=eq.PENDING`, { headers: { 'apikey': DB_KEY } });
@@ -295,9 +316,10 @@
     try {
         const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
             method: 'PATCH',
-            headers: { 
-                ...BASE_HEADERS, 
-                'Prefer': 'return=minimal' 
+            headers: {
+                'apikey': DB_KEY,
+                'Authorization': `Bearer ${DB_KEY}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
                 status_approval: status.toUpperCase() 
@@ -306,12 +328,13 @@
         if (res.ok) { 
             initPanel(); 
         } else {
-            console.error("Gagal update status surat.");
+            alert("Gagal memperbarui status surat.");
         }
     } catch (e) {
-        console.error("Error sistem surat.");
+        alert("Gagal memproses surat. Cek koneksi database.");
     }
 }
+
 
 
         function renderWhitelist() {
@@ -346,9 +369,10 @@
     try {
         const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
             method: 'PATCH',
-            headers: { 
-                ...BASE_HEADERS, 
-                'Prefer': 'return=minimal' 
+            headers: {
+                'apikey': DB_KEY,
+                'Authorization': `Bearer ${DB_KEY}`,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
                 status_akun: 'ACTIVE', 
@@ -358,12 +382,13 @@
         if (res.ok) { 
             initPanel(); 
         } else {
-            console.error("Gagal update status.");
+            alert("Gagal memproses akun. Periksa sinkronisasi.");
         }
     } catch(e) {
-        console.error("Error sistem whitelist.");
+        alert("Gagal memproses. Cek koneksi database.");
     }
 }
+
 
         async function rejectWhitelist(id) {
             if(!confirm(`Hapus?`)) return;
