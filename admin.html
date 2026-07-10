@@ -245,33 +245,7 @@
             });
         }
 
-        async function prosesSurat(id, status) {
-    if (!id || !status) return;
-    try {
-        const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${id}`, {
-            method: 'PATCH',
-            headers: {
-                'apikey': DB_KEY,
-                'Authorization': `Bearer ${DB_KEY}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation',
-                'Content-Profile': 'public'
-            },
-            body: JSON.stringify({ 
-                status_approval: status.toUpperCase() 
-            })
-        });
-        if (res.ok) {
-            initPanel();
-        } else {
-            alert("Gagal memperbarui surat. Periksa hak akses database.");
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-
+        
 
         function renderWhitelist() {
             const container = document.getElementById('whitelist-container');
@@ -302,8 +276,12 @@
 
         async function accWhitelist(id) {
     if (!id) return;
+    
+    
+    const cleanId = Number(id); 
+    
     try {
-        const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${id}`, {
+        const res = await fetch(`${DB_URL}/rest/v1/roster_personel?id=eq.${cleanId}`, {
             method: 'PATCH',
             headers: BASE_HEADERS,
             body: JSON.stringify({ 
@@ -312,12 +290,38 @@
             })
         });
         
-        if (res.status === 200 || res.status === 204 || res.ok) {
+        
+        if (res.ok || res.status === 204 || res.status === 200) {
             initPanel();
         } else {
-            console.error("Gagal update data:", res.statusText);
+            console.error("Gagal memproses data server.");
         }
     } catch(e) {
+        console.error(e);
+    }
+}
+
+async function prosesSurat(id, status) {
+    if (!id || !status) return;
+    
+    
+    const cleanId = Number(id); 
+    
+    try {
+        const res = await fetch(`${DB_URL}/rest/v1/laporan_cuti?id=eq.${cleanId}`, {
+            method: 'PATCH',
+            headers: BASE_HEADERS,
+            body: JSON.stringify({ 
+                status_approval: status.toUpperCase() 
+            })
+        });
+        
+        if (res.ok || res.status === 204 || res.status === 200) {
+            initPanel();
+        } else {
+            console.error("Gagal memperbarui status surat.");
+        }
+    } catch (e) {
         console.error(e);
     }
 }
