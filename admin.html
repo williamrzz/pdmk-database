@@ -17,21 +17,27 @@
 </head>
 <body class="min-h-screen pb-12" onload="initAdminPanel()">
 
-    <nav class="bg-[#111] border-b-2 border-black px-4 py-3 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="text-center sm:text-left">
-                <span class="block text-[9px] text-gray-500 font-bold uppercase tracking-wider">MANDALIKA PD</span>
-                <span class="text-sm font-black text-white italic tracking-wide">PDMK DATABASE</span>
+    <nav class="bg-[#0A0B10] border-b-2 border-black px-4 py-3 sticky top-0 z-50 shadow-md">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+            <div>
+                <span class="block text-[8px] text-gray-500 font-bold uppercase tracking-wider">MANDALIKA PD</span>
+                <span class="text-xs font-black text-white italic tracking-wide uppercase">PDMK DATABASE</span>
             </div>
-            <div class="flex items-center space-x-2 overflow-x-auto max-w-full py-1">
-                <a href="admin.html" class="px-3 py-1 text-[10px] bg-white text-black font-bold uppercase border border-black rounded-sm">Personnel</a>
-                <a href="divisi.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Divisi Area</a>
-                <a href="laporan.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Laporan</a>
-                <a href="finance.html" class="px-3 py-1 text-[10px] text-gray-400 hover:text-white font-bold uppercase">Finance</a>
-                <a href="system.html" class="px-3 py-1 text-[10px] text-purple-400 hover:text-purple-300 font-bold uppercase">System</a>
+            
+            <div class="flex items-center space-x-3 overflow-x-auto no-scrollbar py-1">
+                <a href="admin.html" class="px-2 py-0.5 text-[9px] bg-white text-black font-black uppercase border border-black rounded-sm">Personnel</a>
+                <a href="divisi.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Divisi</a>
+                <a href="laporan.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Laporan</a>
+                <a href="finance.html" class="text-[9px] text-gray-400 hover:text-white font-bold uppercase">Finance</a>
+                <a href="system.html" class="text-[9px] text-purple-400 hover:text-purple-300 font-bold uppercase">System</a>
             </div>
+
+            <a href="dashboard.html" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white border border-black rounded-sm shadow-[2px_2px_0px_#000] transition-all">
+                Exit
+            </a>
         </div>
     </nav>
+
 
     <main class="max-w-4xl mx-auto px-4 mt-6 space-y-6">
 
