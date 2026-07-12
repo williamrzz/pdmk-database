@@ -655,7 +655,7 @@ const SUPABASE_URL =
     "https://yizoloveqztkgrlxdnvq.supabase.co";
 
 const SUPABASE_KEY =
-    "ISI_DENGAN_ANON_KEY_MILIKMU";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlpem9sb3ZlcXp0a2dybHhkbnZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjA1MzIsImV4cCI6MjA5OTE5NjUzMn0.3nMMr8x0IS1U-KJvB6Z0QPcsr598k7jBjQYzMmBbXMA";
 
 // TOAST
 
@@ -860,3 +860,199 @@ async function handleLogin() {
     }
 
     }
+    
+// REGISTER
+
+async function handleRegister() {
+
+    const nama = document
+        .getElementById("reg-name")
+        .value
+        .trim();
+
+    const badge = document
+        .getElementById("reg-badge")
+        .value
+        .trim();
+
+    const password = document
+        .getElementById("reg-pass")
+        .value
+        .trim();
+
+    if (!nama || !badge || !password) {
+
+        showToast(
+            "Semua data wajib diisi.",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+    if (!nama.includes("_")) {
+
+        showToast(
+            "Nama IC harus memakai underscore (_).",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+    showLoading();
+
+    try {
+
+        const response = await fetch(
+
+            `${SUPABASE_URL}/rest/v1/roster_personel`,
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    apikey: SUPABASE_KEY,
+
+                    Authorization:
+                        `Bearer ${SUPABASE_KEY}`,
+
+                    "Content-Type":
+                        "application/json",
+
+                    Prefer:
+                        "return=representation"
+
+                },
+
+                body: JSON.stringify({
+
+                    nama_ic: nama,
+
+                    badge: badge,
+
+                    password: password,
+
+                    pangkat: "BHARADA",
+
+                    gaji_pokok: 100000,
+
+                    is_admin: false,
+
+                    status_akun: "PENDING"
+
+                })
+
+            }
+
+        );
+
+        hideLoading();
+
+        if (response.ok) {
+
+            showToast(
+
+                "Pendaftaran berhasil.",
+
+                "#16a34a"
+
+            );
+
+            document
+                .getElementById("reg-name")
+                .value = "";
+
+            document
+                .getElementById("reg-badge")
+                .value = "";
+
+            document
+                .getElementById("reg-pass")
+                .value = "";
+
+            setTimeout(() => {
+
+                switchForm("login");
+
+            }, 1200);
+
+        } else {
+
+            showToast(
+
+                "Pendaftaran gagal.",
+
+                "#dc2626"
+
+            );
+
+        }
+
+    }
+
+    catch (err) {
+
+        hideLoading();
+
+        showToast(
+
+            "Koneksi ke database gagal.",
+
+            "#dc2626"
+
+        );
+
+    }
+
+}
+
+
+// AUTO LOGIN
+
+const session = localStorage.getItem("session_pdmk");
+
+if (session) {
+
+    console.log("Session ditemukan");
+
+}
+
+
+// ======================================
+// LOADING ANIMATION
+// ======================================
+
+const style = document.createElement("style");
+
+style.innerHTML = `
+
+@keyframes spin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+`;
+
+document.head.appendChild(style);
+
+</script>
+
+</body>
+
+</html>
