@@ -648,3 +648,215 @@ style="display:none;">
 </div>
 
 <script>
+
+// SUPABASE CONFIG
+
+const SUPABASE_URL =
+    "https://yizoloveqztkgrlxdnvq.supabase.co";
+
+const SUPABASE_KEY =
+    "ISI_DENGAN_ANON_KEY_MILIKMU";
+
+// TOAST
+
+function showToast(message, color = "#2563eb") {
+
+    const toast = document.getElementById("toast");
+
+    toast.innerHTML = message;
+
+    toast.style.background = color;
+
+    toast.style.display = "block";
+
+    setTimeout(() => {
+
+        toast.style.display = "none";
+
+    }, 3000);
+
+}
+
+
+// LOADING
+
+
+function showLoading() {
+
+    document.getElementById("loading").style.display = "flex";
+
+}
+
+function hideLoading() {
+
+    document.getElementById("loading").style.display = "none";
+
+}
+
+
+// SHOW PASSWORD
+
+function togglePassword(id, button) {
+
+    const input = document.getElementById(id);
+
+    if (input.type === "password") {
+
+        input.type = "text";
+
+        button.innerHTML = "🙈";
+
+    } else {
+
+        input.type = "password";
+
+        button.innerHTML = "👁";
+
+    }
+
+}
+
+
+// LOGIN REGISTER SWITCH
+
+function switchForm(type) {
+
+    if (type === "register") {
+
+        document
+            .getElementById("login-section")
+            .style.display = "none";
+
+        document
+            .getElementById("register-section")
+            .style.display = "block";
+
+    } else {
+
+        document
+            .getElementById("login-section")
+            .style.display = "block";
+
+        document
+            .getElementById("register-section")
+            .style.display = "none";
+
+    }
+
+}
+
+
+// LOGIN
+
+async function handleLogin() {
+
+    const nama =
+        document
+        .getElementById("login-name")
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById("login-pass")
+        .value
+        .trim();
+
+    if (!nama || !password) {
+
+        showToast(
+            "Lengkapi semua data.",
+            "#ef4444"
+        );
+
+        return;
+
+    }
+
+    showLoading();
+
+    try {
+
+        const response =
+            await fetch(
+
+                `${SUPABASE_URL}/rest/v1/roster_personel?nama_ic=eq.${encodeURIComponent(nama)}&password=eq.${encodeURIComponent(password)}`,
+
+                {
+
+                    headers: {
+
+                        apikey: SUPABASE_KEY,
+
+                        Authorization:
+                            `Bearer ${SUPABASE_KEY}`
+
+                    }
+
+                }
+
+            );
+
+        const data =
+            await response.json();
+
+        hideLoading();
+
+        if (data.length === 0) {
+
+            showToast(
+                "Nama IC atau Password salah.",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+        const user = data[0];
+
+        if (user.status_akun === "PENDING") {
+
+            showToast(
+                "Akun masih Pending.",
+                "#f59e0b"
+            );
+
+            return;
+
+        }
+
+        localStorage.setItem(
+
+            "session_pdmk",
+
+            JSON.stringify(user)
+
+        );
+
+        showToast(
+            "Login Berhasil",
+            "#16a34a"
+        );
+
+        setTimeout(() => {
+
+            window.location.href =
+                "dashboard.html";
+
+        }, 1200);
+
+    }
+
+    catch (err) {
+
+        hideLoading();
+
+        showToast(
+            "Database tidak dapat dihubungi.",
+            "#dc2626"
+        );
+
+    }
+
+    }
