@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <!-- META -->
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- TITLE -->
+
+    <title>PDMK DATABASE - Dashboard</title>
+
+    <!-- TAILWIND -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- CSS -->
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>PDMK DATABASE</h1>
+
+        <p>Mandalika Police Department</p>
+
+    </header>
+
+    <!-- CONTAINER -->
+
+    <main class="container">
+
+        <!-- PROFILE -->
+
+        <section class="profile-card">
+
+            <h2 id="nama-user">
+                Lucaos_Voldemort
+            </h2>
+
+            <div class="profile-item">
+
+                <span>👮 Pangkat</span>
+
+                <strong id="pangkat-user">
+                    BHARADA
+                </strong>
+
+            </div>
+
+            <div class="profile-item">
+
+                <span>🎖 Badge</span>
+
+                <strong id="badge-user">
+                    #06104
+                </strong>
+
+            </div>
+
+            <div class="profile-item">
+
+                <span>🟢 Status</span>
+
+                <strong id="status-user">
+                    ACTIVE
+                </strong>
+
+            </div>
+
+        </section>
+
+        <!-- PENGUMUMAN -->
+
+        <section
+            id="announcement-card"
+            class="announcement-card">
+
+            <h3>
+
+                📢 Pengumuman
+
+            </h3>
+
+            <p id="announcement-text">
+
+                Selamat datang di PDMK Database.
+
+            </p>
+
+        </section>
+              <!-- MENU -->
+
+        <section class="menu-grid">
+
+            <div class="menu-card" id="menu-duty">
+
+                <div class="menu-icon">
+                    📋
+                </div>
+
+                <h3>Laporan Duty</h3>
+
+                <p>Buat laporan duty baru.</p>
+
+            </div>
+
+            <div class="menu-card" id="menu-cuti">
+
+                <div class="menu-icon">
+                    📅
+                </div>
+
+                <h3>Pengajuan Cuti</h3>
+
+                <p>Ajukan cuti personel.</p>
+
+            </div>
+
+            <div class="menu-card" id="menu-riwayat">
+
+                <div class="menu-icon">
+                    📜
+                </div>
+
+                <h3>Riwayat</h3>
+
+                <p>Lihat riwayat laporan.</p>
+
+            </div>
+
+            <div class="menu-card" id="menu-pengaturan">
+
+                <div class="menu-icon">
+                    ⚙️
+                </div>
+
+                <h3>Pengaturan</h3>
+
+                <p>Pengaturan akun.</p>
+
+            </div>
+
+        </section>
+
+        <!-- LOGOUT -->
+
+        <section class="logout-section">
+
+            <button id="logout-button">
+
+                🚪 Logout
+
+            </button>
+
+        </section>
+
+        <!-- PANEL ADMIN -->
+
+        <section
+            id="admin-panel"
+            class="admin-panel hidden">
+
+            <button id="admin-button">
+
+                🛡 Panel Admin
+
+            </button>
+
+        </section>
+
+    </main>
+
+    <!-- JAVASCRIPT -->
+
+    <script src="../js/dashboard.js"></script>
+
+</body>
+
+              </html>
