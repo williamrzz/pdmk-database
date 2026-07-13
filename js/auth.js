@@ -118,3 +118,122 @@ async function loginUser() {
     window.location.href = "pages/dashboard.html";
 
 }
+/* REGISTER */
+
+async function registerUser() {
+
+    const namaIc = registerName.value.trim();
+
+    const badge = registerBadge.value.trim();
+
+    const password = registerPassword.value.trim();
+
+    const confirmPassword = registerConfirmPassword.value.trim();
+
+    if (
+
+        !namaIc ||
+
+        !badge ||
+
+        !password ||
+
+        !confirmPassword
+
+    ) {
+
+        alert("Semua data wajib diisi.");
+
+        return;
+
+    }
+
+    if (password !== confirmPassword) {
+
+        alert("Konfirmasi password tidak sesuai.");
+
+        return;
+
+    }
+
+    const {
+
+        data: checkUser
+
+    } = await supabase
+
+        .from("roster_personel")
+
+        .select("id")
+
+        .or(
+
+            `nama_ic.eq.${namaIc},badge.eq.${badge}`
+
+        );
+
+    if (checkUser.length > 0) {
+
+        alert("Nama IC atau Badge sudah digunakan.");
+
+        return;
+
+    }
+
+    const { error } = await supabase
+
+        .from("roster_personel")
+
+        .insert([
+
+            {
+
+                nama_ic: namaIc,
+
+                badge: badge,
+
+                password: password,
+
+                pangkat: "-",
+
+                gaji_pokok: 0,
+
+                is_admin: false,
+
+                status_akun: "PENDING"
+
+            }
+
+        ]);
+
+    if (error) {
+
+        alert("Registrasi gagal.");
+
+        console.error(error);
+
+        return;
+
+    }
+
+    alert(
+
+        "Registrasi berhasil. Tunggu persetujuan Admin."
+
+    );
+
+    registerName.value = "";
+
+    registerBadge.value = "";
+
+    registerPassword.value = "";
+
+    registerConfirmPassword.value = "";
+
+    document
+
+        .getElementById("show-login")
+
+        .click();
+
+}
